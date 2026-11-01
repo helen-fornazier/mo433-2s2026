@@ -16,12 +16,12 @@ PY ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python)
 
 export MO433_DATA := $(D)
 
-.PHONY: help env-info test notebook push-drive dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views teacher-info sanity-pixels sanity-teacher
+.PHONY: help env-info test notebook push-drive dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views teacher-info sanity-pixels sanity-teacher student-info row-a
 
 help:
 	@echo "Data dir: $(D)"
 	@echo "Python:   $(PY)"
-	@echo "Targets:  env-info test notebook push-drive | dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views | teacher-info sanity-pixels sanity-teacher"
+	@echo "Targets:  env-info test notebook push-drive | dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views | teacher-info sanity-pixels sanity-teacher student-info row-a"
 
 # Always rerun: records the environment of the machine it runs on
 env-info:
@@ -122,6 +122,21 @@ $(D)/sanity/%.json: $(D)/feats/%_test.npy $(LABEL_SUBSETS) mo433/sanity.py mo433
 
 # E10 checkpoint: the teacher and its negative controls
 sanity-teacher: $(D)/sanity/D.json $(D)/sanity/D-random.json $(D)/sanity/pixels.json
+
+# E11: student family (params, FLOPs, stage shapes, head sizes) and row A (untrained students)
+STUDENT_INFO := $(D)/student_info.json
+$(STUDENT_INFO): mo433/student.py mo433/teacher.py
+	$(PY) -m mo433.student
+
+student-info: $(STUDENT_INFO)
+
+A_ENCODERS := A-c16-s0 A-c16-s1 A-c16-s2 A-c32-s0 A-c32-s1
+A_FEATS := $(A_ENCODERS:%=$(D)/feats/%_test.npy)
+$(A_FEATS): $(D)/feats/%_test.npy: $(SPLIT) mo433/extract_features.py mo433/features.py \
+		mo433/student.py mo433/transforms.py
+	$(PY) -m mo433.extract_features $*
+
+row-a: $(STUDENT_INFO) $(A_ENCODERS:%=$(D)/sanity/%.json)
 
 # Report figure (appendix): random images per class
 $(REPORT)/figures/eurosat_samples.pdf: $(EUROSAT) mo433/sample_grid.py
