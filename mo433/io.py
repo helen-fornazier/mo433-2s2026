@@ -33,7 +33,12 @@ def data_dir() -> Path:
 
 def host_label() -> str:
     """'colab' on Google Colab, 'laptop' elsewhere."""
-    return "colab" if "COLAB_RELEASE_TAG" in os.environ else "laptop"
+    import importlib.util
+    try:
+        has_colab_module = importlib.util.find_spec("google.colab") is not None
+    except ModuleNotFoundError:                  # no "google" package at all
+        has_colab_module = False
+    return "colab" if "COLAB_RELEASE_TAG" in os.environ or has_colab_module else "laptop"
 
 
 @contextmanager

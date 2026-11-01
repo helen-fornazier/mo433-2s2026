@@ -35,7 +35,15 @@ python3 -m venv .venv
 make env-info test
 ```
 
-Colab (GPU; teacher cache and trainings): see `notebooks/colab_run.ipynb` (step E12).
+Colab (GPU; teacher cache and trainings): upload `notebooks/colab_run.ipynb` to Colab
+(*File → Upload notebook*), select an **L4** GPU and add a read-only `GITHUB_TOKEN` to Colab
+Secrets. The notebook mounts Drive, clones this repository, installs `requirements.txt` (keeping
+Colab's CUDA build of torch) and runs `make <target>` against `/content/drive/MyDrive/mo433-2s2026`.
+
+On Colab, `make` only builds outputs that are **missing** on Drive: after cloning, the notebook
+gives every code file an old fixed date, so code never looks newer than data. To redo a step there,
+delete its output. Do not use `make -B` on Colab, because it rebuilds the whole chain of prerequisites.
+On the laptop, where the code is edited, make's usual timestamp rule applies.
 
 ## Reproducing
 
