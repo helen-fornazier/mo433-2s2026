@@ -12,6 +12,12 @@ DATASET = "EuroSAT (RGB), torchvision release"
 NUM_CLASSES = 10
 IMAGE_SIZE = 64                        # native resolution, also the student's input size
 N_IMAGES = 27_000
+# Images per class in the RGB release (Helber et al., 2019); checked when the arrays are built.
+EXPECTED_CLASS_COUNTS = {
+    "AnnualCrop": 3000, "Forest": 3000, "HerbaceousVegetation": 3000, "Highway": 2500,
+    "Industrial": 2500, "Pasture": 2000, "PermanentCrop": 2500, "Residential": 3000,
+    "River": 2500, "SeaLake": 3000,
+}
 
 # Fixed split of Neumann et al. (2019), distributed with TorchGeo (DECISOES 6).
 # train + val lists are merged into our training split; the test list is the test split.
