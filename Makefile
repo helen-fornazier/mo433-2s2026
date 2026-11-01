@@ -6,17 +6,19 @@
 
 # Data root: $MO433_DATA if set (Colab: /content/drive/MyDrive/mo433-2s2026), else ../data
 D  ?= $(or $(MO433_DATA),$(abspath ../data))
+# Report folder (figures and tables are written straight into it)
+REPORT ?= $(abspath ../relatorio)
 # Use the project venv when it exists (laptop); plain python otherwise (Colab)
 PY ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python)
 
 export MO433_DATA := $(D)
 
-.PHONY: help env-info test notebook dataset stats
+.PHONY: help env-info test notebook dataset stats sample-grid
 
 help:
 	@echo "Data dir: $(D)"
 	@echo "Python:   $(PY)"
-	@echo "Targets:  env-info test notebook | dataset stats"
+	@echo "Targets:  env-info test notebook | dataset stats sample-grid"
 
 # Always rerun: records the environment of the machine it runs on
 env-info:
@@ -45,3 +47,9 @@ $(D)/eurosat/stats.json: $(EUROSAT) mo433/data_stats.py
 	$(PY) -m mo433.data_stats
 
 stats: $(D)/eurosat/stats.json
+
+# Report figure (appendix): random images per class
+$(REPORT)/figures/eurosat_samples.pdf: $(EUROSAT) mo433/sample_grid.py
+	$(PY) -m mo433.sample_grid --out $@
+
+sample-grid: $(REPORT)/figures/eurosat_samples.pdf
