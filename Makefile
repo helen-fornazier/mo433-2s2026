@@ -16,12 +16,12 @@ PY ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python)
 
 export MO433_DATA := $(D)
 
-.PHONY: help env-info test notebook push-drive dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views teacher-info
+.PHONY: help env-info test notebook push-drive dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views teacher-info sanity-pixels
 
 help:
 	@echo "Data dir: $(D)"
 	@echo "Python:   $(PY)"
-	@echo "Targets:  env-info test notebook push-drive | dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views | teacher-info"
+	@echo "Targets:  env-info test notebook push-drive | dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views | teacher-info sanity-pixels"
 
 # Always rerun: records the environment of the machine it runs on
 env-info:
@@ -103,6 +103,12 @@ $(TEACHER_INFO): mo433/teacher.py mo433/transforms.py
 	$(PY) -m mo433.teacher
 
 teacher-info: $(TEACHER_INFO)
+
+# E9: sanity diagnostics on raw pixels (reference point; includes the shuffled-label control)
+$(D)/sanity/pixels.json: $(SPLIT) $(LABEL_SUBSETS) mo433/sanity.py mo433/evaluate.py
+	$(PY) -m mo433.sanity pixels
+
+sanity-pixels: $(D)/sanity/pixels.json
 
 # Report figure (appendix): random images per class
 $(REPORT)/figures/eurosat_samples.pdf: $(EUROSAT) mo433/sample_grid.py
