@@ -13,12 +13,12 @@ PY ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python)
 
 export MO433_DATA := $(D)
 
-.PHONY: help env-info test notebook dataset stats sample-grid split
+.PHONY: help env-info test notebook dataset stats sample-grid split label-subsets
 
 help:
 	@echo "Data dir: $(D)"
 	@echo "Python:   $(PY)"
-	@echo "Targets:  env-info test notebook | dataset stats sample-grid split"
+	@echo "Targets:  env-info test notebook | dataset stats sample-grid split label-subsets"
 
 # Always rerun: records the environment of the machine it runs on
 env-info:
@@ -54,6 +54,13 @@ $(SPLIT): $(EUROSAT) mo433/split.py
 	$(PY) -m mo433.split
 
 split: $(SPLIT)
+
+# E3: labeled subsets for the probes (fractions x draws), indices into the training split
+LABEL_SUBSETS := $(D)/label_subsets.pkl
+$(LABEL_SUBSETS): $(SPLIT) mo433/label_subsets.py
+	$(PY) -m mo433.label_subsets
+
+label-subsets: $(LABEL_SUBSETS)
 
 # Report figure (appendix): random images per class
 $(REPORT)/figures/eurosat_samples.pdf: $(EUROSAT) mo433/sample_grid.py
