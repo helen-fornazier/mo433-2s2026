@@ -1,8 +1,15 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "mo433"
 version = "0.1.0"
 description = "MO433 project: distilling a frozen self-supervised ViT into small convnets (EuroSAT)"
 requires-python = ">=3.11"
+
+[tool.setuptools]
+packages = ["mo433"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

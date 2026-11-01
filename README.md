@@ -14,6 +14,7 @@ step-by-step plan is in `../PLANO-IMPLEMENTACAO.md`.
 | `mo433/` | one module per pipeline step, runnable as `python -m mo433.<step>` |
 | `mo433/config.py` | every fixed setting of the study (seeds, K, fractions, grids…) |
 | `tests/` | quick checks, run on the laptop with `make test` |
+| `notebooks/` | exploration only (`make notebook`); nothing in the pipeline depends on them |
 | `Makefile` | the pipeline: dependencies between steps, skips what already exists |
 
 Data and outputs are never stored in the repository. They live in `$MO433_DATA`, which
@@ -28,7 +29,8 @@ Laptop (CPU; data preparation, probes, figures):
 ```sh
 python3 -m venv .venv
 .venv/bin/pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
-.venv/bin/pip install -r requirements.txt
+.venv/bin/pip install -r requirements.txt jupyterlab
+.venv/bin/pip install -e .     # so that `import mo433` works from any folder (notebooks)
 make env-info test
 ```
 

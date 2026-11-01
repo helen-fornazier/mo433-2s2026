@@ -15,6 +15,7 @@ The split lists are checked to cover every image exactly once; step E2 turns the
 
 import argparse
 import hashlib
+import json
 import urllib.request
 from collections import Counter
 from pathlib import Path
@@ -84,6 +85,20 @@ def map_split_lists(filenames, lists) -> dict:
         raise ValueError(f"split lists do not partition the dataset: {len(duplicated)} duplicated, "
                          f"{len(missing)} not in the dataset, {len(unlisted)} not in any list")
     return {split: np.array(sorted(position[n] for n in names)) for split, names in lists.items()}
+
+
+def load_eurosat(root=None) -> dict:
+    """Load the arrays written by this step.
+
+    Returns images, labels, classes, filenames and ``lists``, the TorchGeo split lists as
+    indices ({"train", "val", "test"}).
+    """
+    root = Path(root) if root else data_dir()
+    index = json.loads((root / "eurosat" / "index.json").read_text())
+    lists = map_split_lists(index["filenames"], download_split_lists(root / "splits"))
+    return {"images": np.load(root / "eurosat" / "images.npy"),
+            "labels": np.load(root / "eurosat" / "labels.npy"),
+            "classes": index["classes"], "filenames": index["filenames"], "lists": lists}
 
 
 def main():

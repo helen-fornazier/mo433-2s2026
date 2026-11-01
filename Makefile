@@ -11,12 +11,12 @@ PY ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python)
 
 export MO433_DATA := $(D)
 
-.PHONY: help env-info test dataset
+.PHONY: help env-info test notebook dataset stats
 
 help:
 	@echo "Data dir: $(D)"
 	@echo "Python:   $(PY)"
-	@echo "Targets:  env-info test | dataset"
+	@echo "Targets:  env-info test notebook | dataset stats"
 
 # Always rerun: records the environment of the machine it runs on
 env-info:
@@ -24,6 +24,10 @@ env-info:
 
 test:
 	$(PY) -m pytest -q
+
+# Exploration notebooks (not part of the pipeline)
+notebook:
+	$(PY) -m jupyter lab notebooks/
 
 # ---------------------------------------------------------------------------
 # Phase 0: data
@@ -35,3 +39,9 @@ $(EUROSAT): mo433/dataset.py
 	$(PY) -m mo433.dataset
 
 dataset: $(EUROSAT)
+
+# E1b: descriptive statistics for the report (the notebook adds the figures)
+$(D)/eurosat/stats.json: $(EUROSAT) mo433/data_stats.py
+	$(PY) -m mo433.data_stats
+
+stats: $(D)/eurosat/stats.json
