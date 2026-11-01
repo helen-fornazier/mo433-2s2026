@@ -8,17 +8,19 @@
 D  ?= $(or $(MO433_DATA),$(abspath ../data))
 # Report folder (figures and tables are written straight into it)
 REPORT ?= $(abspath ../relatorio)
+# rclone remote for Google Drive (Colab reads the same folder at /content/drive/MyDrive/mo433-2s2026)
+DRIVE ?= gdrive:mo433-2s2026
 # Use the project venv when it exists (laptop); plain python otherwise (Colab)
 PY ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python)
 
 export MO433_DATA := $(D)
 
-.PHONY: help env-info test notebook dataset stats sample-grid split label-subsets unlabeled-subsets views-preview
+.PHONY: help env-info test notebook push-drive dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views
 
 help:
 	@echo "Data dir: $(D)"
 	@echo "Python:   $(PY)"
-	@echo "Targets:  env-info test notebook | dataset stats sample-grid split label-subsets unlabeled-subsets views-preview"
+	@echo "Targets:  env-info test notebook push-drive | dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views"
 
 # Always rerun: records the environment of the machine it runs on
 env-info:
@@ -26,6 +28,13 @@ env-info:
 
 test:
 	$(PY) -m pytest -q
+
+# Upload the laptop's outputs to Drive and verify them by checksum (MD5 on both sides).
+# The raw JPEG download and local-only files stay on the laptop.
+DRIVE_EXCLUDE := --exclude "raw/**" --exclude "figures/**" --exclude "env_laptop.json" --exclude "*.tmp"
+push-drive:
+	rclone copy $(D) $(DRIVE) $(DRIVE_EXCLUDE) --progress
+	rclone check $(D) $(DRIVE) $(DRIVE_EXCLUDE) --one-way
 
 # Exploration notebooks (not part of the pipeline)
 notebook:
@@ -76,6 +85,13 @@ $(VIEWS_PREVIEW): $(SPLIT) mo433/transforms.py mo433/views_preview.py
 	$(PY) -m mo433.views_preview
 
 views-preview: $(VIEWS_PREVIEW)
+
+# E6: K=10 pre-generated views per training image (~2.65 GB, CPU, one process per core)
+VIEWS := $(D)/views_K10.npy
+$(VIEWS): $(SPLIT) mo433/transforms.py mo433/views.py
+	$(PY) -m mo433.views
+
+views: $(VIEWS)
 
 # Report figure (appendix): random images per class
 $(REPORT)/figures/eurosat_samples.pdf: $(EUROSAT) mo433/sample_grid.py
