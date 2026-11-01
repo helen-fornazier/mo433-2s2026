@@ -13,12 +13,12 @@ PY ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python)
 
 export MO433_DATA := $(D)
 
-.PHONY: help env-info test notebook dataset stats sample-grid split label-subsets
+.PHONY: help env-info test notebook dataset stats sample-grid split label-subsets unlabeled-subsets
 
 help:
 	@echo "Data dir: $(D)"
 	@echo "Python:   $(PY)"
-	@echo "Targets:  env-info test notebook | dataset stats sample-grid split label-subsets"
+	@echo "Targets:  env-info test notebook | dataset stats sample-grid split label-subsets unlabeled-subsets"
 
 # Always rerun: records the environment of the machine it runs on
 env-info:
@@ -61,6 +61,14 @@ $(LABEL_SUBSETS): $(SPLIT) mo433/label_subsets.py
 	$(PY) -m mo433.label_subsets
 
 label-subsets: $(LABEL_SUBSETS)
+
+# E4: unlabeled subsets (100% and the 50% ablation level), drawn without labels.
+# Both files are written by one run; unlab_idx_50.pkl is written last and is the target.
+UNLAB_50 := $(D)/unlab_idx_50.pkl
+$(UNLAB_50): $(SPLIT) mo433/unlabeled_subsets.py
+	$(PY) -m mo433.unlabeled_subsets
+
+unlabeled-subsets: $(UNLAB_50)
 
 # Report figure (appendix): random images per class
 $(REPORT)/figures/eurosat_samples.pdf: $(EUROSAT) mo433/sample_grid.py
