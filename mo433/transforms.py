@@ -71,7 +71,12 @@ def generate_view(image: np.ndarray, seed: int, transform=None) -> np.ndarray:
 
 
 def to_tensor(images) -> torch.Tensor:
-    """(N, H, W, 3) uint8 array or tensor -> (N, 3, H, W) uint8 tensor (no copy of values)."""
+    """(N, H, W, 3) uint8 array or tensor -> (N, 3, H, W) uint8 tensor.
+
+    Values are not copied, except for read-only arrays (e.g. a memmap opened with mode "r"),
+    which torch cannot wrap safely."""
+    if isinstance(images, np.ndarray) and not images.flags.writeable:
+        images = images.copy()
     x = torch.as_tensor(images)
     if x.dtype != torch.uint8 or x.ndim != 4 or x.shape[-1] != 3:
         raise ValueError(f"expected (N, H, W, 3) uint8, got {tuple(x.shape)} {x.dtype}")
