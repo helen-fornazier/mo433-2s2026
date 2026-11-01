@@ -16,12 +16,12 @@ PY ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python)
 
 export MO433_DATA := $(D)
 
-.PHONY: help env-info test notebook push-drive dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views teacher-info sanity-pixels
+.PHONY: help env-info test notebook push-drive dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views teacher-info sanity-pixels sanity-teacher
 
 help:
 	@echo "Data dir: $(D)"
 	@echo "Python:   $(PY)"
-	@echo "Targets:  env-info test notebook push-drive | dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views | teacher-info sanity-pixels"
+	@echo "Targets:  env-info test notebook push-drive | dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views | teacher-info sanity-pixels sanity-teacher"
 
 # Always rerun: records the environment of the machine it runs on
 env-info:
@@ -109,6 +109,19 @@ $(D)/sanity/pixels.json: $(SPLIT) $(LABEL_SUBSETS) mo433/sanity.py mo433/evaluat
 	$(PY) -m mo433.sanity pixels
 
 sanity-pixels: $(D)/sanity/pixels.json
+
+# E10: cached features of the teacher (D) and of its random-weight control (D-random).
+# One run writes <encoder>_train.npy and then <encoder>_test.npy (the target).
+$(D)/feats/D_test.npy $(D)/feats/D-random_test.npy: $(D)/feats/%_test.npy: $(SPLIT) \
+		mo433/extract_features.py mo433/features.py mo433/teacher.py mo433/transforms.py
+	$(PY) -m mo433.extract_features $*
+
+# Sanity check of any encoder with cached features (pixels has its own rule above)
+$(D)/sanity/%.json: $(D)/feats/%_test.npy $(LABEL_SUBSETS) mo433/sanity.py mo433/evaluate.py
+	$(PY) -m mo433.sanity $*
+
+# E10 checkpoint: the teacher and its negative controls
+sanity-teacher: $(D)/sanity/D.json $(D)/sanity/D-random.json $(D)/sanity/pixels.json
 
 # Report figure (appendix): random images per class
 $(REPORT)/figures/eurosat_samples.pdf: $(EUROSAT) mo433/sample_grid.py

@@ -1,10 +1,10 @@
 """Sanity and collapse checks (steps E9-E10), written to $MO433_DATA/sanity/<encoder>.json.
 
-Encoders available here:
+Encoders:
   pixels       raw pixels, flattened (12,288-d): a reference point that needs no network.
                Also runs the k-NN with shuffled training labels, which must land near chance.
-
-The teacher and its negative control are added in step E10, and the students later.
+  any other    features cached by mo433.extract_features (feats/<encoder>_{train,test}.npy),
+               e.g. D (the teacher) and D-random (its negative control). Students come later.
 """
 
 import argparse
@@ -14,8 +14,6 @@ import numpy as np
 from mo433 import config
 from mo433.evaluate import fit_preprocessor, knn_accuracy, sanity_diagnostics
 from mo433.io import banner, data_dir, load_pickle, save_json, write_meta
-
-ENCODERS = ("pixels",)
 
 
 def load_split_data(root):
@@ -40,7 +38,7 @@ def shuffled_label_knn(train_feats, y_train, test_feats, y_test, seed=0) -> floa
 def main():
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("encoder", choices=ENCODERS)
+    parser.add_argument("encoder", help="'pixels' or an encoder with cached features")
     args = parser.parse_args()
     root = data_dir()
     out = root / "sanity" / f"{args.encoder}.json"
@@ -50,10 +48,16 @@ def main():
     y_train, y_test = labels[split["train"]], labels[split["test"]]
     subsets = load_pickle(root / "label_subsets.pkl")
 
-    train_feats = pixel_features(images, split["train"])
-    test_feats = pixel_features(images, split["test"])
+    if args.encoder == "pixels":
+        train_feats = pixel_features(images, split["train"])
+        test_feats = pixel_features(images, split["test"])
+    else:
+        train_feats = np.load(root / "feats" / f"{args.encoder}_train.npy")
+        test_feats = np.load(root / "feats" / f"{args.encoder}_test.npy")
     result = sanity_diagnostics(train_feats, y_train, test_feats, y_test, subsets)
-    result["knn_100_shuffled_labels"] = shuffled_label_knn(train_feats, y_train, test_feats, y_test)
+    if args.encoder == "pixels":
+        result["knn_100_shuffled_labels"] = shuffled_label_knn(train_feats, y_train, test_feats,
+                                                               y_test)
     result["chance"] = 1 / config.NUM_CLASSES
 
     save_json(result, out)
