@@ -13,12 +13,12 @@ PY ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python)
 
 export MO433_DATA := $(D)
 
-.PHONY: help env-info test notebook dataset stats sample-grid split label-subsets unlabeled-subsets
+.PHONY: help env-info test notebook dataset stats sample-grid split label-subsets unlabeled-subsets views-preview
 
 help:
 	@echo "Data dir: $(D)"
 	@echo "Python:   $(PY)"
-	@echo "Targets:  env-info test notebook | dataset stats sample-grid split label-subsets unlabeled-subsets"
+	@echo "Targets:  env-info test notebook | dataset stats sample-grid split label-subsets unlabeled-subsets views-preview"
 
 # Always rerun: records the environment of the machine it runs on
 env-info:
@@ -69,6 +69,13 @@ $(UNLAB_50): $(SPLIT) mo433/unlabeled_subsets.py
 	$(PY) -m mo433.unlabeled_subsets
 
 unlabeled-subsets: $(UNLAB_50)
+
+# E5: visual check of the training views (one image per class, K views, real E6 seeds)
+VIEWS_PREVIEW := $(D)/figures/views_preview.png
+$(VIEWS_PREVIEW): $(SPLIT) mo433/transforms.py mo433/views_preview.py
+	$(PY) -m mo433.views_preview
+
+views-preview: $(VIEWS_PREVIEW)
 
 # Report figure (appendix): random images per class
 $(REPORT)/figures/eurosat_samples.pdf: $(EUROSAT) mo433/sample_grid.py
