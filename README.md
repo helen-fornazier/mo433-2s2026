@@ -31,6 +31,7 @@ python3 -m venv .venv
 .venv/bin/pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
 .venv/bin/pip install -r requirements.txt jupyterlab
 .venv/bin/pip install -e .     # so that `import mo433` works from any folder (notebooks)
+.venv/bin/pip install nbstripout && .venv/bin/nbstripout --install   # never commit notebook outputs
 make env-info test
 ```
 
