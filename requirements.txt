@@ -1,0 +1,15 @@
+# Pinned: libraries whose version can change the results (models, transforms, losses, probes).
+timm==1.0.30
+lightly==1.6.0
+scikit-learn==1.9.1
+umap-learn==0.5.12
+
+# Not pinned on purpose:
+#   torch, torchvision  - Colab ships its own CUDA build; reinstalling it would break the GPU setup.
+#                         Laptop: pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+#   numpy, scipy, pandas, matplotlib - taken from the environment.
+# The exact versions of every run are recorded by `make env-info` (env_<host>.json)
+# and in the .json metadata written next to each output.
+pandas
+matplotlib
+pytest

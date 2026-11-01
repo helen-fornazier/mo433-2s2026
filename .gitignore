@@ -1,0 +1,14 @@
+# Environment
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Data and outputs live in $MO433_DATA, never in the repository
+data/
+*.npy
+*.npz
+*.pkl
+*.pth
+*.tmp

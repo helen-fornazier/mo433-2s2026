@@ -1,0 +1,9 @@
+[project]
+name = "mo433"
+version = "0.1.0"
+description = "MO433 project: distilling a frozen self-supervised ViT into small convnets (EuroSAT)"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
