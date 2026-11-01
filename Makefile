@@ -13,12 +13,12 @@ PY ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python)
 
 export MO433_DATA := $(D)
 
-.PHONY: help env-info test notebook dataset stats sample-grid
+.PHONY: help env-info test notebook dataset stats sample-grid split
 
 help:
 	@echo "Data dir: $(D)"
 	@echo "Python:   $(PY)"
-	@echo "Targets:  env-info test notebook | dataset stats sample-grid"
+	@echo "Targets:  env-info test notebook | dataset stats sample-grid split"
 
 # Always rerun: records the environment of the machine it runs on
 env-info:
@@ -47,6 +47,13 @@ $(D)/eurosat/stats.json: $(EUROSAT) mo433/data_stats.py
 	$(PY) -m mo433.data_stats
 
 stats: $(D)/eurosat/stats.json
+
+# E2: fixed train/test split (TorchGeo train+val -> train, test -> test)
+SPLIT := $(D)/split_idx.pkl
+$(SPLIT): $(EUROSAT) mo433/split.py
+	$(PY) -m mo433.split
+
+split: $(SPLIT)
 
 # Report figure (appendix): random images per class
 $(REPORT)/figures/eurosat_samples.pdf: $(EUROSAT) mo433/sample_grid.py
