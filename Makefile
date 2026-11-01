@@ -16,12 +16,12 @@ PY ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python)
 
 export MO433_DATA := $(D)
 
-.PHONY: help env-info test notebook push-drive dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views
+.PHONY: help env-info test notebook push-drive dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views teacher-info
 
 help:
 	@echo "Data dir: $(D)"
 	@echo "Python:   $(PY)"
-	@echo "Targets:  env-info test notebook push-drive | dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views"
+	@echo "Targets:  env-info test notebook push-drive | dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views | teacher-info"
 
 # Always rerun: records the environment of the machine it runs on
 env-info:
@@ -93,6 +93,16 @@ $(VIEWS): $(SPLIT) mo433/transforms.py mo433/views.py
 	$(PY) -m mo433.views
 
 views: $(VIEWS)
+
+# ---------------------------------------------------------------------------
+# Phase 1: teacher (row D) and row A
+# ---------------------------------------------------------------------------
+# E7: load and freeze the DINO ViT-S/16 teacher; record its checks and weights hash
+TEACHER_INFO := $(D)/teacher_info.json
+$(TEACHER_INFO): mo433/teacher.py mo433/transforms.py
+	$(PY) -m mo433.teacher
+
+teacher-info: $(TEACHER_INFO)
 
 # Report figure (appendix): random images per class
 $(REPORT)/figures/eurosat_samples.pdf: $(EUROSAT) mo433/sample_grid.py
