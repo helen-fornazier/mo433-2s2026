@@ -8,8 +8,9 @@
 D  ?= $(or $(MO433_DATA),$(abspath ../data))
 # Report folder (figures and tables are written straight into it)
 REPORT ?= $(abspath ../relatorio)
-# rclone remote for Google Drive (Colab reads the same folder at /content/drive/MyDrive/mo433-2s2026)
-DRIVE ?= gdrive:mo433-2s2026
+# rclone remote whose root is the Drive folder mo433-2s2026 (root_folder_id), the same folder
+# Colab sees at /content/drive/MyDrive/mo433-2s2026
+DRIVE ?= gdrive:
 # Use the project venv when it exists (laptop); plain python otherwise (Colab)
 PY ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python)
 
