@@ -52,7 +52,9 @@ def main():
     fig = plot_sample_grid(data["images"], data["labels"], data["classes"],
                            per_class=args.per_class, seed=args.seed)
     with atomic_path(args.out) as tmp:
-        fig.savefig(tmp, format=args.out.suffix.lstrip("."), dpi=300)
+        fmt = args.out.suffix.lstrip(".")
+        # No creation date in the PDF, so that regenerating the figure gives identical bytes
+        fig.savefig(tmp, format=fmt, dpi=300, metadata={"CreationDate": None} if fmt == "pdf" else None)
     plt.close(fig)
     write_meta(args.out, per_class=args.per_class, seed=args.seed)
     print(f"✓ written to {args.out}")
