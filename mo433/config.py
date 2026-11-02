@@ -80,8 +80,8 @@ TUNING_HIDDEN = (1024, 2048)
 TUNING_EPOCHS = 50                     # a quarter of the final length (DECISOES 19)
 TUNING_WIDTH, TUNING_SEED = 16, 0
 TUNING_CV_FOLDS, TUNING_CV_SEED = 5, 0  # selection: k-NN accuracy by stratified CV on train
-# (lr, h) selected for each row by the tuning (step E17); None until then
-SELECTED = {"B": None, "C": None}
+# (lr, h) selected for each row by the tuning (step E17, data/tuning.json): both inside the grid
+SELECTED = {"B": (1e-2, 1024), "C": (3e-2, 2048)}
 
 # Throughput measurement (step E14; spec 3.9): candidate batch sizes, largest head of the grid
 THROUGHPUT_BATCHES = (256, 512)
