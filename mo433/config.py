@@ -77,6 +77,7 @@ TUNING_LRS = (3e-4, 1e-3, 3e-3)
 TUNING_HIDDEN = (1024, 2048)
 TUNING_EPOCHS = 50                     # a quarter of the final length (DECISOES 19)
 TUNING_WIDTH, TUNING_SEED = 16, 0
+TUNING_CV_FOLDS, TUNING_CV_SEED = 5, 0  # selection: k-NN accuracy by stratified CV on train
 # (lr, h) selected for each row by the tuning (step E17); None until then
 SELECTED = {"B": None, "C": None}
 
