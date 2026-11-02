@@ -21,12 +21,12 @@ export MO433_DATA := $(D)
 # prerequisite, such as a new tuning trial, would then not be built when its target exists.)
 .PRECIOUS: $(D)/runs/B-%.pth $(D)/runs/C-%.pth $(D)/feats/B-%_test.npy $(D)/feats/C-%_test.npy
 
-.PHONY: help env-info test notebook push-drive dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache throughput b-check tuning train-b train-b-c16 train-b-c32
+.PHONY: help env-info test notebook push-drive dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache throughput b-check tuning train-b train-b-c16 train-b-c32 train-c train-c-c16 train-c-c32
 
 help:
 	@echo "Data dir: $(D)"
 	@echo "Python:   $(PY)"
-	@echo "Targets:  env-info test notebook push-drive | dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views | teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache | throughput b-check tuning | train-b train-b-c16 train-b-c32"
+	@echo "Targets:  env-info test notebook push-drive | dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views | teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache | throughput b-check tuning | train-b train-b-c16 train-b-c32 train-c train-c-c16 train-c-c32"
 
 # Always rerun: records the environment of the machine it runs on
 env-info:
@@ -221,3 +221,10 @@ B_C32 := $(call main_runs,B,32)
 train-b-c16: $(B_C16:%=$(D)/sanity/%.json) $(D)/sanity/A-c16-s0.json
 train-b-c32: $(B_C32:%=$(D)/sanity/%.json) $(D)/sanity/A-c32-s0.json
 train-b: train-b-c16 train-b-c32
+
+# E19: the 10 main runs of row C, in the same order and with the same checks
+C_C16 := $(call main_runs,C,16)
+C_C32 := $(call main_runs,C,32)
+train-c-c16: $(C_C16:%=$(D)/sanity/%.json) $(D)/sanity/A-c16-s0.json
+train-c-c32: $(C_C32:%=$(D)/sanity/%.json) $(D)/sanity/A-c32-s0.json
+train-c: train-c-c16 train-c-c32

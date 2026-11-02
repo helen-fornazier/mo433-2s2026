@@ -85,7 +85,8 @@ def test_main_runs_cover_every_seed_and_put_the_ablation_first():
 
 
 def test_makefile_trains_exactly_the_main_runs_in_order(tmp_path):
-    for target, c in (("train-b-c16", 16), ("train-b-c32", 32)):
-        out = subprocess.run(["make", "-n", target, f"D={tmp_path}"], cwd=REPO_DIR,
-                             capture_output=True, text=True).stdout
-        assert re.findall(r"mo433\.train (\S+)", out) == main_runs("B", c)
+    for row in ("B", "C"):
+        for c in config.WIDTHS:
+            out = subprocess.run(["make", "-n", f"train-{row.lower()}-c{c}", f"D={tmp_path}"],
+                                 cwd=REPO_DIR, capture_output=True, text=True).stdout
+            assert re.findall(r"mo433\.train (\S+)", out) == main_runs(row, c)
