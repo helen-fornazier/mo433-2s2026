@@ -67,13 +67,15 @@ SEEDS = {16: (0, 1, 2), 32: (0, 1)}    # spec 2.1: >=3 seeds small, >=2 seeds la
 # ---------------------------------------------------------------------------
 # Training of B and C (spec 3.4, 3.5; DECISOES 18-19)
 # ---------------------------------------------------------------------------
-EPOCHS = None                          # fixed after the throughput measurement (E14)
-BATCH_SIZE = None                      # idem
-WARMUP_EPOCHS = None                   # idem
+# Fixed from the throughput measurement (E14, throughput.json): 200 epochs of every main run
+# cost ~4.7 GPU-h of steps on the L4, so the budget is not binding (DECISOES 18).
+EPOCHS = 200
+BATCH_SIZE = 512                       # same throughput as 256, half the steps
+WARMUP_FRACTION = 0.05                 # linear warm-up over 5% of the steps (10 of 200 epochs)
 WEIGHT_DECAY = 0.05
 TUNING_LRS = (3e-4, 1e-3, 3e-3)
 TUNING_HIDDEN = (1024, 2048)
-TUNING_EPOCHS = 10
+TUNING_EPOCHS = 50                     # a quarter of the final length (DECISOES 19)
 TUNING_WIDTH, TUNING_SEED = 16, 0
 
 # Throughput measurement (step E14; spec 3.9): candidate batch sizes, largest head of the grid
