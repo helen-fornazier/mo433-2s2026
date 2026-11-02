@@ -199,9 +199,9 @@ $(D)/feats/C-%_test.npy: $(D)/runs/C-%.pth $(SPLIT) $(EXTRACT_CODE)
 B_CHECK := B-c16-d100-s0-tune-lr1e-3-h2048
 b-check: $(D)/sanity/$(B_CHECK).json $(D)/sanity/A-c16-s0.json
 
-# E17: the 10 trials of each row (lr x h, 50 epochs, c16, seed 0) and the selection by k-NN
+# E17: the 12 trials of each row (lr x h, 50 epochs, c16, seed 0) and the selection by k-NN
 # 5-fold CV on the training split. Names must match mo433/tuning.py:trial_names.
-TUNE_TRIALS := $(foreach row,B C,$(foreach lr,3e-4 1e-3 3e-3 1e-2 3e-2,$(foreach h,1024 2048,\
+TUNE_TRIALS := $(foreach row,B C,$(foreach lr,3e-4 1e-3 3e-3 1e-2 3e-2 1e-1,$(foreach h,1024 2048,\
 	$(row)-c16-d100-s0-tune-lr$(lr)-h$(h))))
 TUNING := $(D)/tuning.json
 $(TUNING): $(TUNE_TRIALS:%=$(D)/feats/%_test.npy) $(SPLIT) mo433/tuning.py mo433/evaluate.py
