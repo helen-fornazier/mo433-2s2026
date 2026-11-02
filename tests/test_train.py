@@ -49,3 +49,12 @@ def test_b_and_c_same_budget_and_checkpoint_round_trip(tmp_path):
     images = VIEWS[:8, 0]
     np.testing.assert_allclose(extract(loaded, images), extract(student, images), rtol=1e-5,
                                atol=1e-6)
+
+
+def test_divergence_raises_or_is_recorded():
+    bank = ViewBank(VIEWS, TARGETS)
+    kwargs = dict(lr=1e6, hidden=128, epochs=3, batch_size=16, log=lambda *_: None)
+    with pytest.raises(RuntimeError):
+        train("B", 16, 0, np.arange(48), bank, **kwargs)
+    _, log = train("B", 16, 0, np.arange(48), bank, stop_if_diverged=True, **kwargs)
+    assert log["diverged_at_epoch"] == len(log["epochs"]) + 1

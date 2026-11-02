@@ -11,6 +11,10 @@ The run name says what is trained:
                                                 TUNING_EPOCHS epochs
 --lr, --hidden and --epochs override these; ``--tag`` appends -<tag> to the name (smoke tests).
 
+If the loss stops being finite, a main run aborts and writes nothing. A tuning trial instead
+stops there and is written as diverged (``diverged_at_epoch`` in its log and metadata): a learning
+rate that diverges is a result of the tuning, and the trial must exist for the tuning to go on.
+
 Both rows use the same budget: the same epochs, batch size (last incomplete batch dropped, so
 the same number of steps), AdamW, weight decay, and a linear warm-up over WARMUP_FRACTION of the
 steps followed by a cosine decay to zero, all per step. The seed fixes the student's
@@ -64,8 +68,10 @@ def lr_factor(step: int, total_steps: int, warmup_steps: int) -> float:
 
 
 def train(row: str, c: int, seed: int, positions, bank: ViewBank, *, lr: float, hidden: int,
-          epochs: int, batch_size: int = config.BATCH_SIZE, log=print):
-    """Train one student; returns (student, per-epoch log)."""
+          epochs: int, batch_size: int = config.BATCH_SIZE, stop_if_diverged: bool = False,
+          log=print):
+    """Train one student; returns (student, per-epoch log). A non-finite epoch loss raises, or,
+    with ``stop_if_diverged``, ends the training with ``diverged_at_epoch`` in the log."""
     model = create_row(row, c, hidden, seed).to(bank.device)
     model.train()
     optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=config.WEIGHT_DECAY)
@@ -77,7 +83,7 @@ def train(row: str, c: int, seed: int, positions, bank: ViewBank, *, lr: float, 
     scaler = torch.amp.GradScaler(bank.device.type, enabled=bank.device.type == "cuda")
     generator = torch.Generator().manual_seed(seed)
 
-    history = []
+    history, diverged_at = [], None
     for epoch in range(epochs):
         start, loss_sum = time.perf_counter(), torch.zeros((), device=bank.device)
         epoch_lr = scheduler.get_last_lr()[0]
@@ -87,13 +93,20 @@ def train(row: str, c: int, seed: int, positions, bank: ViewBank, *, lr: float, 
             scheduler.step()
         loss = (loss_sum / n_steps).item()
         if not math.isfinite(loss):
-            raise RuntimeError(f"loss is {loss} at epoch {epoch + 1}; nothing written")
+            if not stop_if_diverged:
+                raise RuntimeError(f"loss is {loss} at epoch {epoch + 1}; nothing written")
+            diverged_at = epoch + 1
+            log(f"  epoch {epoch + 1:>3}/{epochs}  loss {loss}: diverged, training stopped")
+            break
         history.append({"epoch": epoch + 1, "loss": round(loss, 5), "lr_start": epoch_lr,
                         "seconds": round(time.perf_counter() - start, 2)})
         log(f"  epoch {epoch + 1:>3}/{epochs}  loss {loss:.4f}  lr {epoch_lr:.2e}  "
             f"{history[-1]['seconds']:.1f} s")
-    return model.student, {"steps_per_epoch": n_steps, "total_steps": total,
-                           "warmup_steps": warmup, "epochs": history}
+    out = {"steps_per_epoch": n_steps, "total_steps": total, "warmup_steps": warmup,
+           "epochs": history}
+    if diverged_at is not None:
+        out["diverged_at_epoch"] = diverged_at
+    return model.student, out
 
 
 def main():
@@ -138,7 +151,8 @@ def main():
     start = time.perf_counter()
     student, history = train(run["row"], run["c"], run["seed"], positions, bank, lr=run["lr"],
                              hidden=run["hidden"], epochs=run["epochs"],
-                             batch_size=min(config.BATCH_SIZE, len(positions)))
+                             batch_size=min(config.BATCH_SIZE, len(positions)),
+                             stop_if_diverged=run["tuning"])
     seconds = time.perf_counter() - start
 
     weights = out_dir / f"{name}.pth"
@@ -147,13 +161,18 @@ def main():
                 weight_decay=config.WEIGHT_DECAY, warmup_fraction=config.WARMUP_FRACTION,
                 device=args.device, gpu=gpu, seconds=round(seconds, 1),
                 gpu_hours=round(seconds / 3600, 4) if gpu else None)
+    if "diverged_at_epoch" in history:
+        info["diverged_at_epoch"] = history["diverged_at_epoch"]
     save_json(dict(info, **history), out_dir / f"{name}_log.json")
     with atomic_path(weights) as tmp:
         torch.save({k: v.cpu() for k, v in student.state_dict().items()}, tmp)
-    write_meta(weights, **info, final_loss=history["epochs"][-1]["loss"],
-               weights_sha256=weights_sha256(student))
-    print(f"✓ {name}: {seconds / 60:.1f} min, final loss {history['epochs'][-1]['loss']:.4f}, "
-          f"written to {weights}")
+    final_loss = history["epochs"][-1]["loss"] if history["epochs"] else None
+    write_meta(weights, **info, final_loss=final_loss, weights_sha256=weights_sha256(student))
+    if "diverged_at_epoch" in history:
+        print(f"✗ {name}: diverged at epoch {history['diverged_at_epoch']}, recorded as such in "
+              f"{weights} and its log")
+        return
+    print(f"✓ {name}: {seconds / 60:.1f} min, final loss {final_loss:.4f}, written to {weights}")
 
 
 if __name__ == "__main__":

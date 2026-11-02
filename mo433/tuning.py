@@ -9,7 +9,9 @@ training features (no labels involved). Each row keeps its own best trial; the c
 by hand to config.SELECTED, which the main runs read.
 
 Writes $MO433_DATA/tuning.json: every trial's CV accuracy (mean and per fold), its final loss,
-GPU-hours and embedding std (a collapsed trial would show it), and the selection per row.
+GPU-hours and embedding std (a collapsed trial would show it), and the selection per row. A trial
+whose training diverged (mo433.train) is recorded with the epoch where it did, has no accuracy,
+and cannot be selected.
 """
 
 import argparse
@@ -53,8 +55,14 @@ def main():
     result = {"criterion": f"knn_cv{config.TUNING_CV_FOLDS}", "trials": {}, "selected": {}}
     for row in "BC":
         for name in trial_names(row):
-            feats = np.load(root / "feats" / f"{name}_train.npy")
             log = json.loads((root / "runs" / f"{name}_log.json").read_text())
+            if "diverged_at_epoch" in log:
+                result["trials"][name] = {
+                    "row": row, "lr": log["lr"], "hidden": log["hidden"], "knn_cv_mean": None,
+                    "diverged_at_epoch": log["diverged_at_epoch"], "gpu_hours": log["gpu_hours"]}
+                print(f"  {name:<36} diverged at epoch {log['diverged_at_epoch']}")
+                continue
+            feats = np.load(root / "feats" / f"{name}_train.npy")
             folds = knn_cv_accuracy(feats, y)
             result["trials"][name] = {
                 "row": row, "lr": log["lr"], "hidden": log["hidden"],
@@ -65,7 +73,8 @@ def main():
             print(f"  {name:<36} k-NN CV {100 * r['knn_cv_mean']:5.2f}  "
                   f"(±{100 * np.std(folds):.2f})  loss {r['final_loss']:.4f}  "
                   f"std {r['embedding_std']:.3f}")
-        best = max((n for n in trial_names(row)), key=lambda n: result["trials"][n]["knn_cv_mean"])
+        best = max((n for n in trial_names(row) if result["trials"][n]["knn_cv_mean"] is not None),
+                   key=lambda n: result["trials"][n]["knn_cv_mean"])
         t = result["trials"][best]
         result["selected"][row] = {"trial": best, "lr": t["lr"], "hidden": t["hidden"],
                                    "knn_cv_mean": t["knn_cv_mean"]}
