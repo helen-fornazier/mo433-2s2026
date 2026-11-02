@@ -16,9 +16,10 @@ PY ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python)
 
 export MO433_DATA := $(D)
 
-# Files made through pattern-rule chains (runs, their features) are kept, never deleted as
-# intermediates.
-.SECONDARY:
+# Runs and features made only as a step of a pattern-rule chain are kept, never deleted as intermediates.
+# (Not a bare .SECONDARY:, which makes every target secondary: a missing file listed as a
+# prerequisite, such as a new tuning trial, would then not be built when its target exists.)
+.PRECIOUS: $(D)/runs/B-%.pth $(D)/runs/C-%.pth $(D)/feats/B-%_test.npy $(D)/feats/C-%_test.npy
 
 .PHONY: help env-info test notebook push-drive dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache throughput b-check tuning
 
@@ -198,9 +199,9 @@ $(D)/feats/C-%_test.npy: $(D)/runs/C-%.pth $(SPLIT) $(EXTRACT_CODE)
 B_CHECK := B-c16-d100-s0-tune-lr1e-3-h2048
 b-check: $(D)/sanity/$(B_CHECK).json $(D)/sanity/A-c16-s0.json
 
-# E17: the 6 trials of each row (lr x h, 50 epochs, c16, seed 0) and the selection by k-NN
+# E17: the 8 trials of each row (lr x h, 50 epochs, c16, seed 0) and the selection by k-NN
 # 5-fold CV on the training split. Names must match mo433/tuning.py:trial_names.
-TUNE_TRIALS := $(foreach row,B C,$(foreach lr,3e-4 1e-3 3e-3,$(foreach h,1024 2048,\
+TUNE_TRIALS := $(foreach row,B C,$(foreach lr,3e-4 1e-3 3e-3 1e-2,$(foreach h,1024 2048,\
 	$(row)-c16-d100-s0-tune-lr$(lr)-h$(h))))
 TUNING := $(D)/tuning.json
 $(TUNING): $(TUNE_TRIALS:%=$(D)/feats/%_test.npy) $(SPLIT) mo433/tuning.py mo433/evaluate.py

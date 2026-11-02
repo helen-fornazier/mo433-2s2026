@@ -73,7 +73,8 @@ EPOCHS = 200
 BATCH_SIZE = 512                       # same throughput as 256, half the steps
 WARMUP_FRACTION = 0.05                 # linear warm-up over 5% of the steps (10 of 200 epochs)
 WEIGHT_DECAY = 0.05
-TUNING_LRS = (3e-4, 1e-3, 3e-3)
+# 1e-2 added after the first 12 trials: both rows picked 3e-3, the edge of the grid (DECISOES 19)
+TUNING_LRS = (3e-4, 1e-3, 3e-3, 1e-2)
 TUNING_HIDDEN = (1024, 2048)
 TUNING_EPOCHS = 50                     # a quarter of the final length (DECISOES 19)
 TUNING_WIDTH, TUNING_SEED = 16, 0
