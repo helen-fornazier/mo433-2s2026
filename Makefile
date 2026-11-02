@@ -237,7 +237,8 @@ $(SENS_C:%=$(D)/runs/%.pth): $(D)/runs/C-c16-d100-s%-lr1e-2.pth: $(VIEWS) $(UNLA
 		$(TEACHER_FEATS) $(TRAIN_CODE)
 	$(PY) -m mo433.train C-c16-d100-s$* --lr 1e-2 --tag lr1e-2
 
-sensitivity-c: $(SENS_C:%=$(D)/sanity/%.json) $(D)/sanity/A-c16-s0.json
+sensitivity-c: $(SENS_C:%=$(D)/sanity/%.json) $(SENS_C:%=$(D)/probes/%.json) \
+		$(D)/sanity/A-c16-s0.json
 
 # E20: the 20 main runs together (present, on the L4, full steps, collapse criterion); writes
 # nothing, so it always runs
