@@ -21,12 +21,12 @@ export MO433_DATA := $(D)
 # prerequisite, such as a new tuning trial, would then not be built when its target exists.)
 .PRECIOUS: $(D)/runs/B-%.pth $(D)/runs/C-%.pth $(D)/feats/B-%_test.npy $(D)/feats/C-%_test.npy
 
-.PHONY: help env-info test notebook push-drive dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache throughput b-check tuning train-b train-b-c16 train-b-c32 train-c train-c-c16 train-c-c32 svm-hparams
+.PHONY: help env-info test notebook push-drive dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache throughput b-check tuning train-b train-b-c16 train-b-c32 train-c train-c-c16 train-c-c32 sensitivity-c svm-hparams
 
 help:
 	@echo "Data dir: $(D)"
 	@echo "Python:   $(PY)"
-	@echo "Targets:  env-info test notebook push-drive | dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views | teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache | throughput b-check tuning | train-b train-b-c16 train-b-c32 train-c train-c-c16 train-c-c32 | svm-hparams"
+	@echo "Targets:  env-info test notebook push-drive | dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views | teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache | throughput b-check tuning | train-b train-b-c16 train-b-c32 train-c train-c-c16 train-c-c32 sensitivity-c | svm-hparams"
 
 # Always rerun: records the environment of the machine it runs on
 env-info:
@@ -228,6 +228,16 @@ C_C32 := $(call main_runs,C,32)
 train-c-c16: $(C_C16:%=$(D)/sanity/%.json) $(D)/sanity/A-c16-s0.json
 train-c-c32: $(C_C32:%=$(D)/sanity/%.json) $(D)/sanity/A-c32-s0.json
 train-c: train-c-c16 train-c-c32
+
+# Sensitivity check of row C (appendix only, never used to select): the main runs of C show
+# transient loss spikes at the selected lr (3e-2), so the c16/d100 runs are repeated, every seed,
+# with the second-best lr of the tuning (1e-2), everything else unchanged (DECISOES 14)
+SENS_C := $(foreach s,0 1 2,C-c16-d100-s$(s)-lr1e-2)
+$(SENS_C:%=$(D)/runs/%.pth): $(D)/runs/C-c16-d100-s%-lr1e-2.pth: $(VIEWS) $(UNLAB_50) \
+		$(TEACHER_FEATS) $(TRAIN_CODE)
+	$(PY) -m mo433.train C-c16-d100-s$* --lr 1e-2 --tag lr1e-2
+
+sensitivity-c: $(SENS_C:%=$(D)/sanity/%.json) $(D)/sanity/A-c16-s0.json
 
 # ---------------------------------------------------------------------------
 # Phase 4: evaluation

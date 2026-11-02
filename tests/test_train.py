@@ -90,3 +90,11 @@ def test_makefile_trains_exactly_the_main_runs_in_order(tmp_path):
             out = subprocess.run(["make", "-n", f"train-{row.lower()}-c{c}", f"D={tmp_path}"],
                                  cwd=REPO_DIR, capture_output=True, text=True).stdout
             assert re.findall(r"mo433\.train (\S+)", out) == main_runs(row, c)
+
+
+def test_sensitivity_runs_of_c_change_only_the_lr(tmp_path):
+    out = subprocess.run(["make", "-n", "sensitivity-c", f"D={tmp_path}"], cwd=REPO_DIR,
+                         capture_output=True, text=True).stdout
+    assert re.findall(r"mo433\.train (.+)", out) == [
+        f"C-c16-d100-s{s} --lr 1e-2 --tag lr1e-2" for s in config.SEEDS[16]]
+    assert "mo433.sanity C-c16-d100-s2-lr1e-2\n" in out
