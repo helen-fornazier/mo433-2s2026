@@ -23,7 +23,7 @@ cuDNN kernels are not bitwise deterministic, so two runs with the same seed can 
 
 Writes, only when training ends (the checkpoint of the last epoch, DECISOES 17):
   runs/<name>.pth        the student's state_dict (the head / projector is discarded)
-  runs/<name>_log.json   loss, learning rate and seconds of each epoch
+  runs/<name>_log.json   loss, learning rate, seconds and skipped steps of each epoch
 and the usual .json metadata with the GPU, the wall time and the GPU-hours.
 """
 
@@ -59,6 +59,13 @@ def parse_run(run: str) -> dict:
     return out
 
 
+def steps_taken(optimizer) -> int:
+    """Optimizer steps actually applied. The gradient scaler skips the step of a batch whose
+    gradients overflowed in fp16; AdamW counts only the steps it takes (a CPU tensor: no sync)."""
+    state = optimizer.state.get(optimizer.param_groups[0]["params"][0], {})
+    return int(state["step"]) if "step" in state else 0
+
+
 def lr_factor(step: int, total_steps: int, warmup_steps: int) -> float:
     """Linear warm-up from 1/warmup_steps to 1, then cosine decay to 0 at the last step."""
     if step < warmup_steps:
@@ -83,7 +90,7 @@ def train(row: str, c: int, seed: int, positions, bank: ViewBank, *, lr: float, 
     scaler = torch.amp.GradScaler(bank.device.type, enabled=bank.device.type == "cuda")
     generator = torch.Generator().manual_seed(seed)
 
-    history, diverged_at = [], None
+    history, diverged_at, skipped = [], None, 0
     for epoch in range(epochs):
         start, loss_sum = time.perf_counter(), torch.zeros((), device=bank.device)
         epoch_lr = scheduler.get_last_lr()[0]
@@ -98,12 +105,16 @@ def train(row: str, c: int, seed: int, positions, bank: ViewBank, *, lr: float, 
             diverged_at = epoch + 1
             log(f"  epoch {epoch + 1:>3}/{epochs}  loss {loss}: diverged, training stopped")
             break
+        epoch_skipped = (epoch + 1) * n_steps - steps_taken(optimizer) - skipped
+        skipped += epoch_skipped
         history.append({"epoch": epoch + 1, "loss": round(loss, 5), "lr_start": epoch_lr,
-                        "seconds": round(time.perf_counter() - start, 2)})
+                        "seconds": round(time.perf_counter() - start, 2),
+                        "skipped_steps": epoch_skipped})
         log(f"  epoch {epoch + 1:>3}/{epochs}  loss {loss:.4f}  lr {epoch_lr:.2e}  "
-            f"{history[-1]['seconds']:.1f} s")
+            f"{history[-1]['seconds']:.1f} s" + (f"  ({epoch_skipped} steps skipped)"
+                                                 if epoch_skipped else ""))
     out = {"steps_per_epoch": n_steps, "total_steps": total, "warmup_steps": warmup,
-           "epochs": history}
+           "skipped_steps": skipped, "epochs": history}
     if diverged_at is not None:
         out["diverged_at_epoch"] = diverged_at
     return model.student, out
@@ -167,7 +178,8 @@ def main():
     with atomic_path(weights) as tmp:
         torch.save({k: v.cpu() for k, v in student.state_dict().items()}, tmp)
     final_loss = history["epochs"][-1]["loss"] if history["epochs"] else None
-    write_meta(weights, **info, final_loss=final_loss, weights_sha256=weights_sha256(student))
+    write_meta(weights, **info, final_loss=final_loss, skipped_steps=history["skipped_steps"],
+               weights_sha256=weights_sha256(student))
     if "diverged_at_epoch" in history:
         print(f"✗ {name}: diverged at epoch {history['diverged_at_epoch']}, recorded as such in "
               f"{weights} and its log")

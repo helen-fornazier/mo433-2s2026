@@ -5,7 +5,7 @@ import torch
 from mo433 import config
 from mo433.extract_features import build_encoder
 from mo433.features import extract
-from mo433.train import lr_factor, parse_run, train
+from mo433.train import lr_factor, parse_run, steps_taken, train
 from mo433.training import ViewBank
 
 RNG = np.random.default_rng(0)
@@ -40,6 +40,7 @@ def test_b_and_c_same_budget_and_checkpoint_round_trip(tmp_path):
                              batch_size=16, log=lambda *_: None)
         logs[row] = log
         assert all(np.isfinite(e["loss"]) for e in log["epochs"])
+        assert log["skipped_steps"] == 0  # no gradient scaling on the CPU
     assert logs["B"]["total_steps"] == logs["C"]["total_steps"] == 6
 
     # The saved student loads back as the same encoder through extract_features.
@@ -58,3 +59,15 @@ def test_divergence_raises_or_is_recorded():
         train("B", 16, 0, np.arange(48), bank, **kwargs)
     _, log = train("B", 16, 0, np.arange(48), bank, stop_if_diverged=True, **kwargs)
     assert log["diverged_at_epoch"] == len(log["epochs"]) + 1
+
+
+def test_steps_taken_counts_only_applied_steps():
+    w = torch.nn.Parameter(torch.ones(3))
+    optimizer = torch.optim.AdamW([w], lr=0.1)
+    assert steps_taken(optimizer) == 0
+    for _ in range(3):
+        w.sum().backward()
+        optimizer.step()
+    # a step skipped by the gradient scaler is a step on which optimizer.step() is not called
+    w.sum().backward()
+    assert steps_taken(optimizer) == 3
