@@ -16,12 +16,12 @@ PY ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python)
 
 export MO433_DATA := $(D)
 
-.PHONY: help env-info test notebook push-drive dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache
+.PHONY: help env-info test notebook push-drive dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache throughput
 
 help:
 	@echo "Data dir: $(D)"
 	@echo "Python:   $(PY)"
-	@echo "Targets:  env-info test notebook push-drive | dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views | teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache"
+	@echo "Targets:  env-info test notebook push-drive | dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views | teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache | throughput"
 
 # Always rerun: records the environment of the machine it runs on
 env-info:
@@ -160,3 +160,14 @@ $(REPORT)/figures/eurosat_samples.pdf: $(EUROSAT) mo433/sample_grid.py
 	$(PY) -m mo433.sample_grid --out $@
 
 sample-grid: $(REPORT)/figures/eurosat_samples.pdf
+
+# ---------------------------------------------------------------------------
+# Phase 2: throughput and training
+# ---------------------------------------------------------------------------
+# E14: images/s of each training stage on the fixed GPU, and the GPU-hours of each epoch budget
+THROUGHPUT := $(D)/throughput.json
+$(THROUGHPUT): $(VIEWS) $(TEACHER_FEATS) $(SPLIT) mo433/throughput.py mo433/training.py \
+		mo433/student.py mo433/teacher.py mo433/transforms.py
+	$(PY) -m mo433.throughput
+
+throughput: $(THROUGHPUT)

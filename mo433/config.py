@@ -76,6 +76,12 @@ TUNING_HIDDEN = (1024, 2048)
 TUNING_EPOCHS = 10
 TUNING_WIDTH, TUNING_SEED = 16, 0
 
+# Throughput measurement (step E14; spec 3.9): candidate batch sizes, largest head of the grid
+THROUGHPUT_BATCHES = (256, 512)
+THROUGHPUT_HIDDEN = max(TUNING_HIDDEN)
+THROUGHPUT_WARMUP, THROUGHPUT_ITERS = 5, 30
+THROUGHPUT_EPOCH_OPTIONS = (50, 100, 200, 300)   # budgets tabulated from the measurement
+
 # ---------------------------------------------------------------------------
 # Evaluation (spec 3.6-3.8; DECISOES 20-28)
 # ---------------------------------------------------------------------------
