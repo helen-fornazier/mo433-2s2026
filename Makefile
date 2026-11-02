@@ -21,12 +21,12 @@ export MO433_DATA := $(D)
 # prerequisite, such as a new tuning trial, would then not be built when its target exists.)
 .PRECIOUS: $(D)/runs/B-%.pth $(D)/runs/C-%.pth $(D)/feats/B-%_test.npy $(D)/feats/C-%_test.npy
 
-.PHONY: help env-info test notebook push-drive dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache throughput b-check tuning
+.PHONY: help env-info test notebook push-drive dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache throughput b-check tuning train-b train-b-c16 train-b-c32
 
 help:
 	@echo "Data dir: $(D)"
 	@echo "Python:   $(PY)"
-	@echo "Targets:  env-info test notebook push-drive | dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views | teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache | throughput b-check tuning"
+	@echo "Targets:  env-info test notebook push-drive | dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views | teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache | throughput b-check tuning | train-b train-b-c16 train-b-c32"
 
 # Always rerun: records the environment of the machine it runs on
 env-info:
@@ -208,3 +208,16 @@ $(TUNING): $(TUNE_TRIALS:%=$(D)/feats/%_test.npy) $(SPLIT) mo433/tuning.py mo433
 	$(PY) -m mo433.tuning
 
 tuning: $(TUNING)
+
+# ---------------------------------------------------------------------------
+# Phase 3: main trainings
+# ---------------------------------------------------------------------------
+# E18: the 10 main runs of row B with the selected (lr, h) (config.SELECTED): each seed at 50%
+# and 100% of the unlabeled images, the 50% runs of each width first. Each run brings its
+# features and its sanity / collapse check. Names must match mo433/train.py:main_runs.
+main_runs = $(foreach p,50 100,$(foreach s,$(if $(filter 16,$(2)),0 1 2,0 1),$(1)-c$(2)-d$(p)-s$(s)))
+B_C16 := $(call main_runs,B,16)
+B_C32 := $(call main_runs,B,32)
+train-b-c16: $(B_C16:%=$(D)/sanity/%.json) $(D)/sanity/A-c16-s0.json
+train-b-c32: $(B_C32:%=$(D)/sanity/%.json) $(D)/sanity/A-c32-s0.json
+train-b: train-b-c16 train-b-c32

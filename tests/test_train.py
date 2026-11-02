@@ -1,3 +1,6 @@
+import re
+import subprocess
+
 import numpy as np
 import pytest
 import torch
@@ -5,7 +8,8 @@ import torch
 from mo433 import config
 from mo433.extract_features import build_encoder
 from mo433.features import extract
-from mo433.train import lr_factor, parse_run, steps_taken, train
+from mo433.io import REPO_DIR
+from mo433.train import lr_factor, main_runs, parse_run, steps_taken, train
 from mo433.training import ViewBank
 
 RNG = np.random.default_rng(0)
@@ -71,3 +75,17 @@ def test_steps_taken_counts_only_applied_steps():
     # a step skipped by the gradient scaler is a step on which optimizer.step() is not called
     w.sum().backward()
     assert steps_taken(optimizer) == 3
+
+
+def test_main_runs_cover_every_seed_and_put_the_ablation_first():
+    runs = main_runs("B", 16)
+    assert runs == ["B-c16-d50-s0", "B-c16-d50-s1", "B-c16-d50-s2",
+                    "B-c16-d100-s0", "B-c16-d100-s1", "B-c16-d100-s2"]
+    assert len(main_runs("C")) == 2 * sum(len(s) for s in config.SEEDS.values()) == 10
+
+
+def test_makefile_trains_exactly_the_main_runs_in_order(tmp_path):
+    for target, c in (("train-b-c16", 16), ("train-b-c32", 32)):
+        out = subprocess.run(["make", "-n", target, f"D={tmp_path}"], cwd=REPO_DIR,
+                             capture_output=True, text=True).stdout
+        assert re.findall(r"mo433\.train (\S+)", out) == main_runs("B", c)

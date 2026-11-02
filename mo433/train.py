@@ -59,6 +59,14 @@ def parse_run(run: str) -> dict:
     return out
 
 
+def main_runs(row: str, c: int | None = None) -> list:
+    """The main runs of a row (all widths, or width ``c``): every seed at every unlabeled
+    percentage, each block (row x width) with the 50% runs first (spec 5: reduced data first)."""
+    widths = config.WIDTHS if c is None else (c,)
+    return [f"{row}-c{w}-d{p}-s{s}" for w in widths for p in sorted(config.UNLAB_FRACTIONS)
+            for s in config.SEEDS[w]]
+
+
 def steps_taken(optimizer) -> int:
     """Optimizer steps actually applied. The gradient scaler skips the step of a batch whose
     gradients overflowed in fp16; AdamW counts only the steps it takes (a CPU tensor: no sync)."""
