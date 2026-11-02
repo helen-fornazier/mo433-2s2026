@@ -21,12 +21,12 @@ export MO433_DATA := $(D)
 # prerequisite, such as a new tuning trial, would then not be built when its target exists.)
 .PRECIOUS: $(D)/runs/B-%.pth $(D)/runs/C-%.pth $(D)/feats/B-%_test.npy $(D)/feats/C-%_test.npy
 
-.PHONY: help env-info test notebook push-drive dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache throughput b-check tuning train-b train-b-c16 train-b-c32 train-c train-c-c16 train-c-c32
+.PHONY: help env-info test notebook push-drive dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache throughput b-check tuning train-b train-b-c16 train-b-c32 train-c train-c-c16 train-c-c32 svm-hparams
 
 help:
 	@echo "Data dir: $(D)"
 	@echo "Python:   $(PY)"
-	@echo "Targets:  env-info test notebook push-drive | dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views | teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache | throughput b-check tuning | train-b train-b-c16 train-b-c32 train-c train-c-c16 train-c-c32"
+	@echo "Targets:  env-info test notebook push-drive | dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views | teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache | throughput b-check tuning | train-b train-b-c16 train-b-c32 train-c train-c-c16 train-c-c32 | svm-hparams"
 
 # Always rerun: records the environment of the machine it runs on
 env-info:
@@ -228,3 +228,14 @@ C_C32 := $(call main_runs,C,32)
 train-c-c16: $(C_C16:%=$(D)/sanity/%.json) $(D)/sanity/A-c16-s0.json
 train-c-c32: $(C_C32:%=$(D)/sanity/%.json) $(D)/sanity/A-c32-s0.json
 train-c: train-c-c16 train-c-c32
+
+# ---------------------------------------------------------------------------
+# Phase 4: evaluation
+# ---------------------------------------------------------------------------
+# E21: C of the linear SVM and (C, gamma) of the RBF SVM, chosen once by CV on the training
+# split of a single encoder (config.SVM_HPARAM_ENCODER), then frozen for all encoders
+SVM_HPARAMS := $(D)/svm_hparams.json
+$(SVM_HPARAMS): $(D)/feats/B-c16-d100-s0_test.npy $(SPLIT) mo433/svm_hparams.py mo433/evaluate.py
+	$(PY) -m mo433.svm_hparams
+
+svm-hparams: $(SVM_HPARAMS)

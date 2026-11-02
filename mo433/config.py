@@ -97,6 +97,9 @@ SVM_CV_FOLDS = 5
 SVM_C_GRID = (0.01, 0.1, 1, 10, 100)
 SVM_G_GRID = (0.1, 0.3, 1, 3, 10)      # gamma = g / d
 SVM_HPARAM_ENCODER = "B-c16-d100-s0"
+# Chosen by the step E21 (data/svm_hparams.json), both inside the grid, then frozen for every
+# encoder: the linear SVM's CV curve is flat (93.3-93.5%); RBF g = 1 is gamma="scale"
+SVM_SELECTED = {"linear": {"C": 0.1}, "rbf": {"C": 1, "g": 1}}
 LINEAR_SVC_MAX_ITER = 10_000
 RBF_MAX_SAMPLES = 10_000
 RBF_SUBSAMPLE_SEED = 0

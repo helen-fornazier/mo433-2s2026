@@ -7,15 +7,18 @@ test features and the diagnostics.
 
 This module holds the parts needed for the sanity and collapse checks (step E9): the k-NN
 probe, the per-dimension standard deviation of the L2-normalized embeddings, and k-means scored
-with NMI and ARI. The SVM probes are added in step E22.
+with NMI and ARI. The SVM probes (step E21) come last: their hyperparameters are chosen once
+(mo433.svm_hparams) and then frozen for every encoder.
 """
 
 import numpy as np
 from sklearn.cluster import KMeans
 from sklearn.metrics import adjusted_rand_score, normalized_mutual_info_score
+from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import Normalizer, StandardScaler
+from sklearn.svm import SVC, LinearSVC
 
 from mo433 import config
 from mo433.label_subsets import knn_k
@@ -72,3 +75,26 @@ def sanity_diagnostics(train_feats, y_train, test_feats, y_test, label_subsets) 
         "embedding_std_isotropic_ref": float(1 / np.sqrt(train_feats.shape[1])),
         **{f"kmeans_{k}": v for k, v in kmeans_scores(te, y_test).items()},
     }
+
+
+def linear_svm(C: float) -> LinearSVC:
+    """Linear SVM probe (spec 3.6), on preprocessed features."""
+    return LinearSVC(C=C, max_iter=config.LINEAR_SVC_MAX_ITER, random_state=0)
+
+
+def rbf_svm(C: float, g: float, dim: int) -> SVC:
+    """RBF SVM probe (spec 3.6) with gamma = g / dim. After the StandardScaler every dimension
+    has unit variance, so g = 1 is sklearn's gamma="scale"."""
+    return SVC(kernel="rbf", C=C, gamma=g / dim)
+
+
+def rbf_subsample(y, max_samples: int = config.RBF_MAX_SAMPLES,
+                  seed: int = config.RBF_SUBSAMPLE_SEED) -> np.ndarray:
+    """Positions (into ``y``, sorted) of the fixed stratified subsample on which the RBF SVM is
+    fitted (spec 3.6, DECISOES 23): all of them when there are at most ``max_samples``. It
+    depends only on the labels and the seed, so it is the same for every encoder."""
+    positions = np.arange(len(y))
+    if len(y) <= max_samples:
+        return positions
+    keep, _ = train_test_split(positions, train_size=max_samples, stratify=y, random_state=seed)
+    return np.sort(keep)
