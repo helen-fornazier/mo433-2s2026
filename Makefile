@@ -21,12 +21,12 @@ export MO433_DATA := $(D)
 # prerequisite, such as a new tuning trial, would then not be built when its target exists.)
 .PRECIOUS: $(D)/runs/B-%.pth $(D)/runs/C-%.pth $(D)/feats/B-%_test.npy $(D)/feats/C-%_test.npy
 
-.PHONY: help env-info test notebook push-drive dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache throughput b-check tuning train-b train-b-c16 train-b-c32 train-c train-c-c16 train-c-c32 sensitivity-c check-runs svm-hparams
+.PHONY: help env-info test notebook push-drive dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache throughput b-check tuning train-b train-b-c16 train-b-c32 train-c train-c-c16 train-c-c32 sensitivity-c check-runs svm-hparams probes
 
 help:
 	@echo "Data dir: $(D)"
 	@echo "Python:   $(PY)"
-	@echo "Targets:  env-info test notebook push-drive | dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views | teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache | throughput b-check tuning | train-b train-b-c16 train-b-c32 train-c train-c-c16 train-c-c32 sensitivity-c check-runs | svm-hparams"
+	@echo "Targets:  env-info test notebook push-drive | dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views | teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache | throughput b-check tuning | train-b train-b-c16 train-b-c32 train-c train-c-c16 train-c-c32 sensitivity-c check-runs | svm-hparams probes"
 
 # Always rerun: records the environment of the machine it runs on
 env-info:
@@ -254,3 +254,12 @@ $(SVM_HPARAMS): $(D)/feats/B-c16-d100-s0_test.npy $(SPLIT) mo433/svm_hparams.py 
 	$(PY) -m mo433.svm_hparams
 
 svm-hparams: $(SVM_HPARAMS)
+
+# E22: the three probes of every encoder at every label fraction and draw, with the frozen SVM
+# hyperparameters (26 encoders: A 5, B 10, C 10, D 1)
+ENCODERS := $(A_ENCODERS) $(B_C16) $(B_C32) $(call main_runs,C,16) $(call main_runs,C,32) D
+$(D)/probes/%.json: $(D)/feats/%_test.npy $(LABEL_SUBSETS) $(SVM_HPARAMS) mo433/probe.py \
+		mo433/evaluate.py
+	$(PY) -m mo433.probe $*
+
+probes: $(ENCODERS:%=$(D)/probes/%.json)
