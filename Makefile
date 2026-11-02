@@ -16,12 +16,12 @@ PY ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python)
 
 export MO433_DATA := $(D)
 
-.PHONY: help env-info test notebook push-drive dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views teacher-info sanity-pixels sanity-teacher student-info row-a
+.PHONY: help env-info test notebook push-drive dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache
 
 help:
 	@echo "Data dir: $(D)"
 	@echo "Python:   $(PY)"
-	@echo "Targets:  env-info test notebook push-drive | dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views | teacher-info sanity-pixels sanity-teacher student-info row-a"
+	@echo "Targets:  env-info test notebook push-drive | dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views | teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache"
 
 # Always rerun: records the environment of the machine it runs on
 env-info:
@@ -137,6 +137,23 @@ $(A_FEATS): $(D)/feats/%_test.npy: $(SPLIT) mo433/extract_features.py mo433/feat
 	$(PY) -m mo433.extract_features $*
 
 row-a: $(STUDENT_INFO) $(A_ENCODERS:%=$(D)/sanity/%.json)
+
+# E13: teacher features of every view (fp16), the targets of row C. The reference (20 views,
+# fp32) is computed on the laptop's CPU; the cache is computed on Colab's GPU and checked
+# against it (and against fp32 on the GPU) before it is written.
+TEACHER_REF := $(D)/teacher_ref.npz
+$(TEACHER_REF): $(VIEWS) mo433/teacher_cache.py mo433/features.py mo433/teacher.py \
+		mo433/transforms.py
+	$(PY) -m mo433.teacher_cache --reference
+
+teacher-ref: $(TEACHER_REF)
+
+TEACHER_FEATS := $(D)/teacher_feats_K10.npy
+$(TEACHER_FEATS): $(VIEWS) $(TEACHER_REF) $(TEACHER_INFO) mo433/teacher_cache.py \
+		mo433/features.py mo433/teacher.py mo433/transforms.py
+	$(PY) -m mo433.teacher_cache
+
+teacher-cache: $(TEACHER_FEATS)
 
 # Report figure (appendix): random images per class
 $(REPORT)/figures/eurosat_samples.pdf: $(EUROSAT) mo433/sample_grid.py

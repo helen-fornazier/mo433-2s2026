@@ -51,6 +51,12 @@ TEACHER_NAME = "vit_small_patch16_224.dino"
 TEACHER_RES = 224
 TEACHER_DIM = 384
 TEACHER_UPSAMPLE = "bicubic"
+# Teacher cache (step E13): fp16 targets for row C, checked against fp32 recomputations
+TEACHER_CACHE_BATCH = 512
+TEACHER_REF_VIEWS, TEACHER_REF_SEED = 20, 0        # fp32 on the laptop's CPU, compared on Colab
+TEACHER_FP32_VIEWS, TEACHER_FP32_SEED = 200, 1     # fp32 recomputed on the GPU
+TEACHER_CACHE_MIN_COS = 0.999                      # fp16 cache vs fp32
+TEACHER_HOSTS_MIN_COS = 0.9999                     # fp32 on Colab's GPU vs fp32 on the laptop
 
 # ---------------------------------------------------------------------------
 # Student family (spec 2.1; DECISOES 1-5)
