@@ -77,6 +77,8 @@ TUNING_LRS = (3e-4, 1e-3, 3e-3)
 TUNING_HIDDEN = (1024, 2048)
 TUNING_EPOCHS = 50                     # a quarter of the final length (DECISOES 19)
 TUNING_WIDTH, TUNING_SEED = 16, 0
+# (lr, h) selected for each row by the tuning (step E17); None until then
+SELECTED = {"B": None, "C": None}
 
 # Throughput measurement (step E14; spec 3.9): candidate batch sizes, largest head of the grid
 THROUGHPUT_BATCHES = (256, 512)

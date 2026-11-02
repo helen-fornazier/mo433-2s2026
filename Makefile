@@ -16,12 +16,16 @@ PY ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python)
 
 export MO433_DATA := $(D)
 
-.PHONY: help env-info test notebook push-drive dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache throughput
+# Files made through pattern-rule chains (runs, their features) are kept, never deleted as
+# intermediates.
+.SECONDARY:
+
+.PHONY: help env-info test notebook push-drive dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache throughput b-check
 
 help:
 	@echo "Data dir: $(D)"
 	@echo "Python:   $(PY)"
-	@echo "Targets:  env-info test notebook push-drive | dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views | teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache | throughput"
+	@echo "Targets:  env-info test notebook push-drive | dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views | teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache | throughput b-check"
 
 # Always rerun: records the environment of the machine it runs on
 env-info:
@@ -171,3 +175,25 @@ $(THROUGHPUT): $(VIEWS) $(TEACHER_FEATS) $(SPLIT) mo433/throughput.py mo433/trai
 	$(PY) -m mo433.throughput
 
 throughput: $(THROUGHPUT)
+
+# E15: one training of row B or C. The run name fixes everything (mo433/train.py): main runs
+# <row>-c<c>-d<p>-s<s> use the row's tuned (lr, h); tuning trials end in -tune-lr<lr>-h<h>.
+TRAIN_CODE := mo433/train.py mo433/training.py mo433/student.py mo433/transforms.py
+$(D)/runs/B-%.pth: $(VIEWS) $(UNLAB_50) $(TRAIN_CODE)
+	$(PY) -m mo433.train B-$*
+
+$(D)/runs/C-%.pth: $(VIEWS) $(UNLAB_50) $(TEACHER_FEATS) $(TRAIN_CODE)
+	$(PY) -m mo433.train C-$*
+
+# Features of a trained student (then $(D)/sanity/<run>.json by the rule of step E9)
+EXTRACT_CODE := mo433/extract_features.py mo433/features.py mo433/student.py mo433/transforms.py
+$(D)/feats/B-%_test.npy: $(D)/runs/B-%.pth $(SPLIT) $(EXTRACT_CODE)
+	$(PY) -m mo433.extract_features B-$*
+
+$(D)/feats/C-%_test.npy: $(D)/runs/C-%.pth $(SPLIT) $(EXTRACT_CODE)
+	$(PY) -m mo433.extract_features C-$*
+
+# E16: first real training of row B (it is also one of the tuning trials of step E17) and its
+# collapse check against row A
+B_CHECK := B-c16-d100-s0-tune-lr1e-3-h2048
+b-check: $(D)/sanity/$(B_CHECK).json $(D)/sanity/A-c16-s0.json

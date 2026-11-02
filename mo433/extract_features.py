@@ -11,7 +11,8 @@ Encoders available so far:
   A-c<c>-s<s>  row A: the untrained student of width c with the initialization of seed s,
                BatchNorm in eval mode with its default running statistics (spec 2.1). Its
                weights are also saved to runs/A-c<c>-s<s>.pth (for the latency measurement).
-Rows B and C are added in later steps.
+  <B|C>-c<c>-d<p>-s<s>[-<tag>]
+               a trained student of row B or C, loaded from runs/<name>.pth (step E15).
 """
 
 import argparse
@@ -29,9 +30,10 @@ from mo433.student import create_student
 from mo433.teacher import load_teacher, weights_sha256
 
 ROW_A = re.compile(r"A-c(\d+)-s(\d+)")
+TRAINED = re.compile(r"[BC]-c(\d+)-d\d+-s(\d+)(?:-.+)?")
 
 
-def build_encoder(name: str, device="cpu"):
+def build_encoder(name: str, device="cpu", root=None):
     if name == "D":
         return load_teacher(device)
     if name == "D-random":
@@ -39,6 +41,11 @@ def build_encoder(name: str, device="cpu"):
         return load_teacher(device, pretrained=False)
     if m := ROW_A.fullmatch(name):
         return create_student(int(m[1]), seed=int(m[2])).to(device)
+    if m := TRAINED.fullmatch(name):
+        student = create_student(int(m[1]), seed=int(m[2]))
+        student.load_state_dict(torch.load((root or data_dir()) / "runs" / f"{name}.pth",
+                                           map_location="cpu"))
+        return student.to(device)
     raise ValueError(f"unknown encoder {name!r}")
 
 
@@ -49,7 +56,7 @@ def feature_paths(root, name):
 def main():
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("encoder", help="D, D-random or A-c<c>-s<s>")
+    parser.add_argument("encoder", help="D, D-random, A-c<c>-s<s> or a trained run")
     parser.add_argument("--batch-size", type=int, default=128)
     parser.add_argument("--limit", type=int, default=None,
                         help="only the first N images of each split, written to --out-dir "
@@ -62,7 +69,7 @@ def main():
     banner(f"Extract features: {args.encoder} ({args.device})")
     images = np.load(root / "eurosat" / "images.npy", mmap_mode="r")
     split = load_pickle(root / "split_idx.pkl")
-    model = build_encoder(args.encoder, args.device)
+    model = build_encoder(args.encoder, args.device, root)
     if args.limit is None and ROW_A.fullmatch(args.encoder):
         weights = root / "runs" / f"{args.encoder}.pth"
         with atomic_path(weights) as tmp:
