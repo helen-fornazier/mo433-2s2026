@@ -21,12 +21,12 @@ export MO433_DATA := $(D)
 # prerequisite, such as a new tuning trial, would then not be built when its target exists.)
 .PRECIOUS: $(D)/runs/B-%.pth $(D)/runs/C-%.pth $(D)/feats/B-%_test.npy $(D)/feats/C-%_test.npy
 
-.PHONY: help env-info test notebook push-drive dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache throughput b-check tuning train-b train-b-c16 train-b-c32 train-c train-c-c16 train-c-c32 sensitivity-c check-runs svm-hparams probes
+.PHONY: help env-info test notebook push-drive dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache throughput b-check tuning train-b train-b-c16 train-b-c32 train-c train-c-c16 train-c-c32 sensitivity-c check-runs svm-hparams probes diagnostics
 
 help:
 	@echo "Data dir: $(D)"
 	@echo "Python:   $(PY)"
-	@echo "Targets:  env-info test notebook push-drive | dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views | teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache | throughput b-check tuning | train-b train-b-c16 train-b-c32 train-c train-c-c16 train-c-c32 sensitivity-c check-runs | svm-hparams probes"
+	@echo "Targets:  env-info test notebook push-drive | dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views | teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache | throughput b-check tuning | train-b train-b-c16 train-b-c32 train-c train-c-c16 train-c-c32 sensitivity-c check-runs | svm-hparams probes diagnostics"
 
 # Always rerun: records the environment of the machine it runs on
 env-info:
@@ -264,3 +264,10 @@ $(D)/probes/%.json: $(D)/feats/%_test.npy $(LABEL_SUBSETS) $(SVM_HPARAMS) mo433/
 	$(PY) -m mo433.probe $*
 
 probes: $(ENCODERS:%=$(D)/probes/%.json)
+
+# E23: k-means (NMI, ARI) and the 2-D t-SNE of the test features of every encoder, with the same
+# parameters for all; diag/<encoder>_proj.npy is written first, then the .json target
+$(D)/diag/%.json: $(D)/feats/%_test.npy mo433/diagnostics.py mo433/evaluate.py
+	$(PY) -m mo433.diagnostics $*
+
+diagnostics: $(ENCODERS:%=$(D)/diag/%.json)
