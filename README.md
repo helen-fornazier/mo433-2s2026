@@ -26,6 +26,13 @@ it with the configuration, git commit, package versions and device that produced
 report's tables and figures are written to `$REPORT/tables` and `$REPORT/figures`
 (default `../relatorio`, the folder of the report's LaTeX source).
 
+`results/` is a read-only snapshot (1.8 MB) of the small outputs behind the report, copied from
+`$MO433_DATA` with their metadata files: probes, diagnostics, sanity checks, training logs
+(including the tuning trials), SVM hyperparameter search, tuning, throughput, latency,
+supplementary analyses, teacher and student info, labeled-subset summary and dataset
+statistics. Every number of the report can be checked there without running anything; the
+pipeline never reads it.
+
 Naming used throughout: an encoder instance is `<row>-c<width>-d<percent>-s<seed>`, e.g.
 `B-c16-d100-s0` is row B, width c=16, trained on 100% of the unlabeled training images, seed 0;
 untrained row-A students have no `d` tag (`A-c16-s0`); `D` is the teacher and `D-random` the

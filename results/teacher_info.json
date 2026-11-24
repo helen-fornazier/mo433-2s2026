@@ -1,0 +1,38 @@
+{
+  "checks": {
+    "deterministic": true,
+    "output_shape": [
+      4,
+      384
+    ],
+    "preprocessing_matches_timm": true,
+    "stays_in_eval": true
+  },
+  "feature_dim": 384,
+  "global_pool": "token",
+  "hf_hub_id": "timm/vit_small_patch16_224.dino",
+  "name": "vit_small_patch16_224.dino",
+  "params": 21665664,
+  "pretrained_cfg": {
+    "crop_pct": 0.9,
+    "input_size": [
+      3,
+      224,
+      224
+    ],
+    "interpolation": "bicubic",
+    "license": "apache-2.0",
+    "mean": [
+      0.485,
+      0.456,
+      0.406
+    ],
+    "std": [
+      0.229,
+      0.224,
+      0.225
+    ]
+  },
+  "trainable_params": 0,
+  "weights_sha256": "acb98ef896cc94acceaed9db9ed40bf0fe7c6da5039bf31a18a5f73dbc58a438"
+}

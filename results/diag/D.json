@@ -1,0 +1,14 @@
+{
+  "encoder": "D",
+  "feature_dim": 384,
+  "kmeans_ari": 0.7752621064466133,
+  "kmeans_nmi": 0.7969956212368929,
+  "tsne": {
+    "init": "pca",
+    "learning_rate": "auto",
+    "n_components": 2,
+    "perplexity": 30,
+    "random_state": 0
+  },
+  "tsne_seconds": 7.7
+}

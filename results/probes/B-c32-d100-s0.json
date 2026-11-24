@@ -1,0 +1,286 @@
+{
+  "encoder": "B-c32-d100-s0",
+  "feature_dim": 256,
+  "results": [
+    {
+      "accuracy": 0.8696296296296296,
+      "draw": 0,
+      "fraction": 0.01,
+      "k": 16,
+      "n_fit": 216,
+      "probe": "knn",
+      "seconds": 0.27
+    },
+    {
+      "accuracy": 0.8798148148148148,
+      "converged": true,
+      "draw": 0,
+      "fraction": 0.01,
+      "n_fit": 216,
+      "probe": "linear",
+      "seconds": 0.12
+    },
+    {
+      "accuracy": 0.8974074074074074,
+      "converged": true,
+      "draw": 0,
+      "fraction": 0.01,
+      "n_fit": 216,
+      "probe": "rbf",
+      "seconds": 0.31
+    },
+    {
+      "accuracy": 0.8631481481481481,
+      "draw": 1,
+      "fraction": 0.01,
+      "k": 16,
+      "n_fit": 216,
+      "probe": "knn",
+      "seconds": 0.26
+    },
+    {
+      "accuracy": 0.8905555555555555,
+      "converged": true,
+      "draw": 1,
+      "fraction": 0.01,
+      "n_fit": 216,
+      "probe": "linear",
+      "seconds": 0.13
+    },
+    {
+      "accuracy": 0.9014814814814814,
+      "converged": true,
+      "draw": 1,
+      "fraction": 0.01,
+      "n_fit": 216,
+      "probe": "rbf",
+      "seconds": 0.29
+    },
+    {
+      "accuracy": 0.8790740740740741,
+      "draw": 2,
+      "fraction": 0.01,
+      "k": 16,
+      "n_fit": 216,
+      "probe": "knn",
+      "seconds": 0.23
+    },
+    {
+      "accuracy": 0.8916666666666667,
+      "converged": true,
+      "draw": 2,
+      "fraction": 0.01,
+      "n_fit": 216,
+      "probe": "linear",
+      "seconds": 0.12
+    },
+    {
+      "accuracy": 0.8918518518518519,
+      "converged": true,
+      "draw": 2,
+      "fraction": 0.01,
+      "n_fit": 216,
+      "probe": "rbf",
+      "seconds": 0.3
+    },
+    {
+      "accuracy": 0.9212962962962963,
+      "draw": 0,
+      "fraction": 0.1,
+      "k": 20,
+      "n_fit": 2160,
+      "probe": "knn",
+      "seconds": 0.44
+    },
+    {
+      "accuracy": 0.912962962962963,
+      "converged": true,
+      "draw": 0,
+      "fraction": 0.1,
+      "n_fit": 2160,
+      "probe": "linear",
+      "seconds": 2.11
+    },
+    {
+      "accuracy": 0.932962962962963,
+      "converged": true,
+      "draw": 0,
+      "fraction": 0.1,
+      "n_fit": 2160,
+      "probe": "rbf",
+      "seconds": 2.76
+    },
+    {
+      "accuracy": 0.9259259259259259,
+      "draw": 1,
+      "fraction": 0.1,
+      "k": 20,
+      "n_fit": 2160,
+      "probe": "knn",
+      "seconds": 0.58
+    },
+    {
+      "accuracy": 0.9131481481481482,
+      "converged": true,
+      "draw": 1,
+      "fraction": 0.1,
+      "n_fit": 2160,
+      "probe": "linear",
+      "seconds": 2.05
+    },
+    {
+      "accuracy": 0.9333333333333333,
+      "converged": true,
+      "draw": 1,
+      "fraction": 0.1,
+      "n_fit": 2160,
+      "probe": "rbf",
+      "seconds": 2.22
+    },
+    {
+      "accuracy": 0.925,
+      "draw": 2,
+      "fraction": 0.1,
+      "k": 20,
+      "n_fit": 2160,
+      "probe": "knn",
+      "seconds": 0.57
+    },
+    {
+      "accuracy": 0.917037037037037,
+      "converged": true,
+      "draw": 2,
+      "fraction": 0.1,
+      "n_fit": 2160,
+      "probe": "linear",
+      "seconds": 2.25
+    },
+    {
+      "accuracy": 0.937962962962963,
+      "converged": true,
+      "draw": 2,
+      "fraction": 0.1,
+      "n_fit": 2160,
+      "probe": "rbf",
+      "seconds": 2.04
+    },
+    {
+      "accuracy": 0.9335185185185185,
+      "draw": 0,
+      "fraction": 0.5,
+      "k": 20,
+      "n_fit": 10800,
+      "probe": "knn",
+      "seconds": 1.47
+    },
+    {
+      "accuracy": 0.9396296296296296,
+      "converged": true,
+      "draw": 0,
+      "fraction": 0.5,
+      "n_fit": 10800,
+      "probe": "linear",
+      "seconds": 6.35
+    },
+    {
+      "accuracy": 0.9462962962962963,
+      "converged": true,
+      "draw": 0,
+      "fraction": 0.5,
+      "n_fit": 10000,
+      "probe": "rbf",
+      "seconds": 8.2
+    },
+    {
+      "accuracy": 0.9353703703703704,
+      "draw": 1,
+      "fraction": 0.5,
+      "k": 20,
+      "n_fit": 10800,
+      "probe": "knn",
+      "seconds": 1.2
+    },
+    {
+      "accuracy": 0.9412962962962963,
+      "converged": true,
+      "draw": 1,
+      "fraction": 0.5,
+      "n_fit": 10800,
+      "probe": "linear",
+      "seconds": 6.4
+    },
+    {
+      "accuracy": 0.9453703703703704,
+      "converged": true,
+      "draw": 1,
+      "fraction": 0.5,
+      "n_fit": 10000,
+      "probe": "rbf",
+      "seconds": 8.97
+    },
+    {
+      "accuracy": 0.9372222222222222,
+      "draw": 2,
+      "fraction": 0.5,
+      "k": 20,
+      "n_fit": 10800,
+      "probe": "knn",
+      "seconds": 1.14
+    },
+    {
+      "accuracy": 0.9409259259259259,
+      "converged": true,
+      "draw": 2,
+      "fraction": 0.5,
+      "n_fit": 10800,
+      "probe": "linear",
+      "seconds": 6.99
+    },
+    {
+      "accuracy": 0.9461111111111111,
+      "converged": true,
+      "draw": 2,
+      "fraction": 0.5,
+      "n_fit": 10000,
+      "probe": "rbf",
+      "seconds": 8.09
+    },
+    {
+      "accuracy": 0.937037037037037,
+      "draw": 0,
+      "fraction": 1.0,
+      "k": 20,
+      "n_fit": 21600,
+      "probe": "knn",
+      "seconds": 1.86
+    },
+    {
+      "accuracy": 0.9446296296296296,
+      "converged": true,
+      "draw": 0,
+      "fraction": 1.0,
+      "n_fit": 21600,
+      "probe": "linear",
+      "seconds": 9.34
+    },
+    {
+      "accuracy": 0.9451851851851852,
+      "converged": true,
+      "draw": 0,
+      "fraction": 1.0,
+      "n_fit": 10000,
+      "probe": "rbf",
+      "seconds": 7.64
+    }
+  ],
+  "seconds": 11.4,
+  "svm": {
+    "linear": {
+      "C": 0.1
+    },
+    "rbf": {
+      "C": 1,
+      "g": 1
+    }
+  }
+}

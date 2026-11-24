@@ -1,0 +1,184 @@
+{
+  "channel_stats": {
+    "mean": [
+      0.3444,
+      0.3803,
+      0.4078
+    ],
+    "std": [
+      0.2027,
+      0.1369,
+      0.1156
+    ]
+  },
+  "channel_stats_train": {
+    "mean": [
+      0.3444,
+      0.3804,
+      0.4078
+    ],
+    "std": [
+      0.2024,
+      0.1368,
+      0.1155
+    ]
+  },
+  "class_counts": {
+    "all": {
+      "AnnualCrop": 3000,
+      "Forest": 3000,
+      "HerbaceousVegetation": 3000,
+      "Highway": 2500,
+      "Industrial": 2500,
+      "Pasture": 2000,
+      "PermanentCrop": 2500,
+      "Residential": 3000,
+      "River": 2500,
+      "SeaLake": 3000
+    },
+    "test": {
+      "AnnualCrop": 596,
+      "Forest": 608,
+      "HerbaceousVegetation": 573,
+      "Highway": 496,
+      "Industrial": 501,
+      "Pasture": 396,
+      "PermanentCrop": 538,
+      "Residential": 554,
+      "River": 529,
+      "SeaLake": 609
+    },
+    "torchgeo_test": {
+      "AnnualCrop": 596,
+      "Forest": 608,
+      "HerbaceousVegetation": 573,
+      "Highway": 496,
+      "Industrial": 501,
+      "Pasture": 396,
+      "PermanentCrop": 538,
+      "Residential": 554,
+      "River": 529,
+      "SeaLake": 609
+    },
+    "torchgeo_train": {
+      "AnnualCrop": 1791,
+      "Forest": 1787,
+      "HerbaceousVegetation": 1799,
+      "Highway": 1505,
+      "Industrial": 1492,
+      "Pasture": 1195,
+      "PermanentCrop": 1481,
+      "Residential": 1863,
+      "River": 1460,
+      "SeaLake": 1827
+    },
+    "torchgeo_val": {
+      "AnnualCrop": 613,
+      "Forest": 605,
+      "HerbaceousVegetation": 628,
+      "Highway": 499,
+      "Industrial": 507,
+      "Pasture": 409,
+      "PermanentCrop": 481,
+      "Residential": 583,
+      "River": 511,
+      "SeaLake": 564
+    },
+    "train (train+val)": {
+      "AnnualCrop": 2404,
+      "Forest": 2392,
+      "HerbaceousVegetation": 2427,
+      "Highway": 2004,
+      "Industrial": 1999,
+      "Pasture": 1604,
+      "PermanentCrop": 1962,
+      "Residential": 2446,
+      "River": 1971,
+      "SeaLake": 2391
+    }
+  },
+  "cross_split_duplicate_groups": [],
+  "degenerate": {
+    "constant": [],
+    "near_black": [],
+    "near_white": []
+  },
+  "exact_duplicate_groups": [],
+  "imagenet": {
+    "mean": [
+      0.485,
+      0.456,
+      0.406
+    ],
+    "std": [
+      0.229,
+      0.224,
+      0.225
+    ]
+  },
+  "max_proportion_gap_pp": {
+    "all": 0.0,
+    "test": 0.852,
+    "torchgeo_test": 0.852,
+    "torchgeo_train": 0.389,
+    "torchgeo_val": 0.667,
+    "train (train+val)": 0.213
+  },
+  "per_class_channel_mean": {
+    "AnnualCrop": [
+      0.5082,
+      0.4707,
+      0.4595
+    ],
+    "Forest": [
+      0.1544,
+      0.2528,
+      0.2979
+    ],
+    "HerbaceousVegetation": [
+      0.3849,
+      0.3873,
+      0.4076
+    ],
+    "Highway": [
+      0.3452,
+      0.3791,
+      0.4054
+    ],
+    "Industrial": [
+      0.4839,
+      0.4918,
+      0.5269
+    ],
+    "Pasture": [
+      0.2428,
+      0.3469,
+      0.3693
+    ],
+    "PermanentCrop": [
+      0.4789,
+      0.455,
+      0.4472
+    ],
+    "Residential": [
+      0.3924,
+      0.407,
+      0.4432
+    ],
+    "River": [
+      0.2629,
+      0.3397,
+      0.38
+    ],
+    "SeaLake": [
+      0.1886,
+      0.2856,
+      0.3493
+    ]
+  },
+  "thresholds": {
+    "bright_mean": 250.0,
+    "constant_std": 1.0,
+    "dark_mean": 5.0
+  }
+}

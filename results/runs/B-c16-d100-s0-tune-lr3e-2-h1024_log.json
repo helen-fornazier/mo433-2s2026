@@ -1,0 +1,43 @@
+{
+  "batch_size": 512,
+  "c": 16,
+  "device": "cuda",
+  "diverged_at_epoch": 4,
+  "epochs": [
+    {
+      "epoch": 1,
+      "loss": 35.4938,
+      "lr_start": 0.00028571428571428574,
+      "seconds": 8.1
+    },
+    {
+      "epoch": 2,
+      "loss": 21.99408,
+      "lr_start": 0.012285714285714285,
+      "seconds": 4.92
+    },
+    {
+      "epoch": 3,
+      "loss": 40658.54297,
+      "lr_start": 0.024285714285714285,
+      "seconds": 4.95
+    }
+  ],
+  "gpu": "NVIDIA L4",
+  "gpu_hours": 0.0072,
+  "hidden": 1024,
+  "limit": null,
+  "lr": 0.03,
+  "n_images": 21600,
+  "name": "B-c16-d100-s0-tune-lr3e-2-h1024",
+  "percent": 100,
+  "row": "B",
+  "seconds": 25.9,
+  "seed": 0,
+  "steps_per_epoch": 42,
+  "total_steps": 2100,
+  "tuning": true,
+  "warmup_fraction": 0.05,
+  "warmup_steps": 105,
+  "weight_decay": 0.05
+}

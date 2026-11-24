@@ -1,0 +1,14 @@
+{
+  "encoder": "B-c16-d50-s2",
+  "feature_dim": 128,
+  "kmeans_ari": 0.5686204915975152,
+  "kmeans_nmi": 0.646285781569263,
+  "tsne": {
+    "init": "pca",
+    "learning_rate": "auto",
+    "n_components": 2,
+    "perplexity": 30,
+    "random_state": 0
+  },
+  "tsne_seconds": 10.2
+}
