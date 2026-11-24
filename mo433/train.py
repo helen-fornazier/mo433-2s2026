@@ -9,7 +9,8 @@ The run name says what is trained:
                                                 are the row's tuned values (config.SELECTED)
   <row>-c<c>-d<percent>-s<seed>-tune-lr<lr>-h<h>  a tuning trial (step E17): that lr and h, for
                                                 TUNING_EPOCHS epochs
---lr, --hidden and --epochs override these; ``--tag`` appends -<tag> to the name (smoke tests).
+--lr, --hidden and --epochs override these; ``--tag`` appends -<tag> to the name (smoke tests, and the
+sensitivity runs of row C, Makefile target sensitivity-c).
 
 If the loss stops being finite, a main run aborts and writes nothing. A tuning trial instead
 stops there and is written as diverged (``diverged_at_epoch`` in its log and metadata): a learning
@@ -28,6 +29,7 @@ and the usual .json metadata with the GPU, the wall time and the GPU-hours.
 """
 
 import argparse
+import json
 import math
 import re
 import time
@@ -53,10 +55,20 @@ def parse_run(run: str) -> dict:
     if m[5]:
         out.update(lr=float(m[5]), hidden=int(m[6]), epochs=config.TUNING_EPOCHS, tuning=True)
     else:
-        selected = config.SELECTED[out["row"]]
-        lr, hidden = selected if selected else (None, None)
+        lr, hidden = config.SELECTED[out["row"]]
         out.update(lr=lr, hidden=hidden, epochs=config.EPOCHS, tuning=False)
     return out
+
+
+def check_frozen_selection(root, row: str):
+    """config.SELECTED is copied by hand from tuning.json (step E17): stop if the two disagree."""
+    path = root / "tuning.json"
+    if not path.exists():
+        return
+    sel = json.loads(path.read_text())["selected"][row]
+    if (sel["lr"], sel["hidden"]) != tuple(config.SELECTED[row]):
+        raise SystemExit(f"{path} selects lr {sel['lr']}, h {sel['hidden']} for row {row}, but "
+                         f"config.SELECTED is {config.SELECTED[row]}: update the config")
 
 
 def main_runs(row: str, c: int | None = None) -> list:
@@ -145,8 +157,8 @@ def main():
     for key in ("lr", "hidden", "epochs"):
         if getattr(args, key) is not None:
             run[key] = getattr(args, key)
-    if run["lr"] is None:
-        raise SystemExit(f"no lr / h for row {run['row']}: run the tuning (E17) or pass --lr --hidden")
+    if not run["tuning"]:
+        check_frozen_selection(data_dir(), run["row"])
     name = args.run + (f"-{args.tag}" if args.tag else "")
     root = data_dir()
     out_dir = (args.out_dir or root) / "runs"

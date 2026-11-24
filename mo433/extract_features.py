@@ -4,7 +4,7 @@ Writes $MO433_DATA/feats/<encoder>_train.npy and <encoder>_test.npy, (N, d) floa
 order of split_idx.pkl["train"] / ["test"]. Images go through the deterministic evaluation
 path only (each encoder module does its own normalization / resizing).
 
-Encoders available so far:
+Encoders:
   D            the frozen DINO ViT-S/16 teacher (row D)
   D-random     the same ViT with random weights (seed 0): negative control for the sanity
                check, not one of the compared encoders

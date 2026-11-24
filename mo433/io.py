@@ -1,7 +1,7 @@
 """Paths, atomic writes and run metadata.
 
 All data and outputs live under ``$MO433_DATA``:
-  laptop: projeto-e-lista/data (default when the variable is unset)
+  CPU machine ("laptop"): ../data relative to the repository (default when it is unset)
   Colab:  /content/drive/MyDrive/mo433-2s2026
 
 Every output is written atomically (to ``<name>.tmp``, then renamed), so an interrupted run
@@ -22,7 +22,7 @@ from importlib import metadata
 from pathlib import Path
 
 REPO_DIR = Path(__file__).resolve().parent.parent
-TRACKED_PACKAGES = ("torch", "torchvision", "timm", "lightly", "scikit-learn", "umap-learn",
+TRACKED_PACKAGES = ("torch", "torchvision", "timm", "lightly", "scikit-learn",
                     "numpy", "scipy", "pandas", "matplotlib")
 
 

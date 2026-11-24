@@ -21,12 +21,12 @@ export MO433_DATA := $(D)
 # prerequisite, such as a new tuning trial, would then not be built when its target exists.)
 .PRECIOUS: $(D)/runs/B-%.pth $(D)/runs/C-%.pth $(D)/feats/B-%_test.npy $(D)/feats/C-%_test.npy
 
-.PHONY: help env-info test notebook push-drive dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache throughput b-check tuning train-b train-b-c16 train-b-c32 train-c train-c-c16 train-c-c32 sensitivity-c check-runs svm-hparams probes diagnostics latency report prep results-gpu results-cpu all repro-compare
+.PHONY: help env-info test notebook push-drive dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache throughput b-check tuning train-b train-b-c16 train-b-c32 train-c train-c-c16 train-c-c32 sensitivity-c check-runs svm-hparams probes diagnostics supplementary latency report prep results-gpu results-cpu all repro-compare
 
 help:
 	@echo "Data dir: $(D)"
 	@echo "Python:   $(PY)"
-	@echo "Targets:  env-info test notebook push-drive | dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views | teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache | throughput b-check tuning | train-b train-b-c16 train-b-c32 train-c train-c-c16 train-c-c32 sensitivity-c check-runs | svm-hparams probes diagnostics latency | report | prep results-gpu results-cpu all repro-compare"
+	@echo "Targets:  env-info test notebook push-drive | dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views | teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache | throughput b-check tuning | train-b train-b-c16 train-b-c32 train-c train-c-c16 train-c-c32 sensitivity-c check-runs | svm-hparams probes diagnostics supplementary latency | report | prep results-gpu results-cpu all repro-compare"
 
 # Always rerun: records the environment of the machine it runs on
 env-info:
@@ -229,7 +229,7 @@ train-c-c16: $(C_C16:%=$(D)/sanity/%.json) $(D)/sanity/A-c16-s0.json
 train-c-c32: $(C_C32:%=$(D)/sanity/%.json) $(D)/sanity/A-c32-s0.json
 train-c: train-c-c16 train-c-c32
 
-# Sensitivity check of row C (appendix only, never used to select): the main runs of C show
+# Sensitivity check of row C (reported in the limitations, never used to select): the main runs of C show
 # transient loss spikes at the selected lr (3e-2), so the c16/d100 runs are repeated, every seed,
 # with the second-best lr of the tuning (1e-2), everything else unchanged (report Sec. 8)
 SENS_C := $(foreach s,0 1 2,C-c16-d100-s$(s)-lr1e-2)
@@ -279,8 +279,16 @@ $(D)/latency.json: mo433/latency.py mo433/student.py mo433/teacher.py mo433/tran
 
 latency: $(D)/latency.json
 
+# Supplementary analyses of the discussion and limitations: C vs D paired on the test images
+# (McNemar), final cosine of the distillation, loss spikes
+$(D)/supplementary.json: $(ENCODERS:%=$(D)/feats/%_test.npy) $(LABEL_SUBSETS) mo433/supplementary.py \
+		mo433/evaluate.py
+	$(PY) -m mo433.supplementary
+
+supplementary: $(D)/supplementary.json
+
 # ---------------------------------------------------------------------------
-# Phase 6: report
+# Phase 5: report
 # ---------------------------------------------------------------------------
 # E25: every results table ($(REPORT)/tables) and figure ($(REPORT)/figures) from $(D);
 # tables/main.tex stands for all of them
@@ -301,10 +309,10 @@ report: $(REPORT)/tables/main.tex
 # where it is; design steps whose result is frozen in config (throughput, tuning) and the
 # sensitivity check are not part of it.
 # ---------------------------------------------------------------------------
-prep: dataset split label-subsets unlabeled-subsets views teacher-info teacher-ref student-info
+prep: dataset stats split label-subsets unlabeled-subsets views teacher-info teacher-ref student-info
 results-gpu: teacher-cache row-a sanity-teacher train-b train-c
 results-cpu: svm-hparams probes diagnostics
-all: prep results-gpu results-cpu latency sample-grid report
+all: prep results-gpu results-cpu supplementary latency sample-grid report
 
 # Compare a reproduction ($(D), e.g. D=../data-repro) with the original results in REF, on the
 # encoders whose probes exist in both (a partial reproduction is compared on what it has)

@@ -5,9 +5,9 @@ fitted on the features of the whole training split of that encoder (no labels ne
 never on the test split. The same fitted preprocessing is applied to the labeled subsets, the
 test features and the diagnostics.
 
-This module holds the parts needed for the sanity and collapse checks (step E9): the k-NN
-probe, the per-dimension standard deviation of the L2-normalized embeddings, and k-means scored
-with NMI and ARI. The SVM probes (step E21) come last: their hyperparameters are chosen once
+It holds the k-NN probe, the per-dimension standard deviation of the L2-normalized embeddings
+and k-means scored with NMI and ARI (used by the sanity and collapse checks, the probes and the
+diagnostics), and the two SVM probes, whose hyperparameters are chosen once
 (mo433.svm_hparams) and then frozen for every encoder.
 """
 

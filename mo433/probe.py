@@ -20,6 +20,7 @@ accuracy, the number of fitting examples and the fit time.
 """
 
 import argparse
+import json
 import time
 import warnings
 
@@ -75,6 +76,20 @@ def probe_encoder(train_feats, y_train, test_feats, y_test, label_subsets: dict,
             for (frac, draw, probe), r in zip(jobs, results)]
 
 
+def check_frozen_svm(root):
+    """config.SVM_SELECTED is copied by hand from svm_hparams.json (step E21): stop if the two
+    disagree, e.g. in a reproduction whose cross-validation selected other values."""
+    path = root / "svm_hparams.json"
+    if not path.exists():
+        return
+    sel = json.loads(path.read_text())
+    found = {"linear": {"C": sel["linear"]["selected"]["C"]},
+             "rbf": {"C": sel["rbf"]["selected"]["C"], "g": sel["rbf"]["selected"]["g"]}}
+    if found != config.SVM_SELECTED:
+        raise SystemExit(f"{path} selects {found}, but config.SVM_SELECTED is "
+                         f"{config.SVM_SELECTED}: update the config")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -83,6 +98,7 @@ def main():
     root = data_dir()
     out = root / "probes" / f"{args.encoder}.json"
     banner(f"E22: probes of {args.encoder}")
+    check_frozen_svm(root)
     labels = np.load(root / "eurosat" / "labels.npy")
     split = load_pickle(root / "split_idx.pkl")
     train_feats = np.load(root / "feats" / f"{args.encoder}_train.npy")

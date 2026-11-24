@@ -4,7 +4,7 @@ Encoders:
   pixels       raw pixels, flattened (12,288-d): a reference point that needs no network.
                Also runs the k-NN with shuffled training labels, which must land near chance.
   any other    features cached by mo433.extract_features (feats/<encoder>_{train,test}.npy),
-               e.g. D (the teacher) and D-random (its negative control). Students come later.
+               e.g. D (the teacher), D-random (its negative control) and every student.
 """
 
 import argparse
