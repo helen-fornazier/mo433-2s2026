@@ -6,7 +6,7 @@ Is distilling a frozen self-supervised ViT (DINO ViT-S/16) into a small convnet 
 than training the same convnet directly with VICReg (row B)? Budget-matched comparison on
 EuroSAT, with a random-init baseline (row A) and the teacher itself (row D), for two student
 widths (c16, 0.70M parameters; c32, 2.80M). Every design choice and every result is described in
-the report, submitted with this repository; comments in the code point to its sections as
+the report (`report.pdf`, a copy of the submitted version); comments in the code point to its sections as
 "report Sec. X" and to the sections of the project specification as "spec X".
 
 ## Layout
