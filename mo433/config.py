@@ -107,6 +107,12 @@ KMEANS_N_INIT = 10
 KMEANS_SEED = 0
 TSNE_PERPLEXITY = 30
 TSNE_SEED = 0
+# Report (step E25)
+COST_WIDTH, COST_FRACTION = 16, 0.01   # tab:cost: linear SVM, small student, 1% labels
+CONFUSION_FRACTION = 0.01              # fig:confusion: linear SVM, draw 0
+# DINO ViT-S/16 pretraining, Caron et al. 2021 (Sec. 5.2 / Tab. 8): "two 8-GPU servers for
+# 3 days" (V100), for the 300-epoch run; a lower bound for the released checkpoint
+TEACHER_PRETRAIN_GPU_HOURS = 2 * 8 * 72
 LATENCY_BATCH = 256
 LATENCY_WARMUP = 10
 LATENCY_ITERS = 100
