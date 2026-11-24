@@ -47,5 +47,35 @@ On the laptop, where the code is edited, make's usual timestamp rule applies.
 
 ## Reproducing
 
-`make -n <target>` shows what would run, and `make -B <target>` forces a rebuild. The targets
-for each table and figure will be listed here as the steps are implemented.
+`make -n <target>` shows what would run. The whole pipeline is split by where it runs:
+
+| Target | Runs on | What it builds |
+|---|---|---|
+| `make prep` | laptop | EuroSAT arrays, split, labeled and unlabeled subsets, the K=10 views, teacher info and fp32 reference, student info |
+| `make results-gpu` | Colab (L4) | teacher cache (row C's targets), rows A and D, the 20 main runs of B and C with their features and sanity / collapse checks |
+| `make results-cpu` | laptop | SVM hyperparameters, the probes and the diagnostics of the 26 encoders |
+| `make latency` | laptop, idle (~40 min) | `tab:encoders` latency |
+| `make report` | laptop | every results table and figure, in `../relatorio/tables` and `../relatorio/figures` |
+
+`make all` runs all of them in order (where each one can run). Design steps whose result is
+frozen in `mo433/config.py` are separate: `make throughput` (epochs, batch size) and
+`make tuning` (learning rate and projector width of each row), as is the appendix-only
+`make sensitivity-c`.
+
+The results of every step are in `$MO433_DATA`; the report is compiled from `../relatorio`
+with `tectonic main.tex`.
+
+### From-scratch check (step E27)
+
+In a new, empty data folder, from a clean clone:
+
+1. Laptop: `make prep D=../data-repro`, then upload it into the Drive folder
+   `mo433-2s2026/repro` (`rclone copy ../data-repro gdrive:repro --exclude "raw/**"`).
+2. Colab: in `notebooks/colab_run.ipynb` set `DATA = "mo433-2s2026/repro"` and run
+   `make results-gpu` (or `teacher-cache row-a sanity-teacher` first, then `train-b-c16`,
+   `train-b-c32`, `train-c-c16`, `train-c-c32` in parallel sessions).
+3. Laptop: copy the results back without the large training inputs
+   (`rclone copy gdrive:repro ../data-repro --exclude "raw/**" --exclude "views_K10.npy" --exclude "teacher_feats_K10.npy"`),
+   then `make results-cpu D=../data-repro` and `make repro-compare D=../data-repro`, which
+   compares every cell of `tab:main` with the original results and writes
+   `../data-repro/repro_compare.json`.

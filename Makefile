@@ -21,12 +21,12 @@ export MO433_DATA := $(D)
 # prerequisite, such as a new tuning trial, would then not be built when its target exists.)
 .PRECIOUS: $(D)/runs/B-%.pth $(D)/runs/C-%.pth $(D)/feats/B-%_test.npy $(D)/feats/C-%_test.npy
 
-.PHONY: help env-info test notebook push-drive dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache throughput b-check tuning train-b train-b-c16 train-b-c32 train-c train-c-c16 train-c-c32 sensitivity-c check-runs svm-hparams probes diagnostics latency report
+.PHONY: help env-info test notebook push-drive dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache throughput b-check tuning train-b train-b-c16 train-b-c32 train-c train-c-c16 train-c-c32 sensitivity-c check-runs svm-hparams probes diagnostics latency report prep results-gpu results-cpu all repro-compare
 
 help:
 	@echo "Data dir: $(D)"
 	@echo "Python:   $(PY)"
-	@echo "Targets:  env-info test notebook push-drive | dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views | teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache | throughput b-check tuning | train-b train-b-c16 train-b-c32 train-c train-c-c16 train-c-c32 sensitivity-c check-runs | svm-hparams probes diagnostics latency | report"
+	@echo "Targets:  env-info test notebook push-drive | dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views | teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache | throughput b-check tuning | train-b train-b-c16 train-b-c32 train-c train-c-c16 train-c-c32 sensitivity-c check-runs | svm-hparams probes diagnostics latency | report | prep results-gpu results-cpu all repro-compare"
 
 # Always rerun: records the environment of the machine it runs on
 env-info:
@@ -291,3 +291,23 @@ $(REPORT)/tables/main.tex: $(REPORT_INPUTS) mo433/report.py mo433/check_runs.py
 	$(PY) -m mo433.report
 
 report: $(REPORT)/tables/main.tex
+
+# ---------------------------------------------------------------------------
+# Whole pipeline (E27). Three groups, by where they run:
+#   prep         laptop: data, split, subsets, views, teacher info and reference, student info
+#   results-gpu  Colab:  teacher cache, rows A and D, the 20 main runs with features and sanity
+#   results-cpu  laptop: SVM hyperparameters, probes and diagnostics of the 26 encoders
+# then, on the laptop, latency (idle laptop, ~40 min) and the report. `make all` runs everything
+# where it is; design steps whose result is frozen in config (throughput, tuning) and the
+# sensitivity check are not part of it.
+# ---------------------------------------------------------------------------
+prep: dataset split label-subsets unlabeled-subsets views teacher-info teacher-ref student-info
+results-gpu: teacher-cache row-a sanity-teacher train-b train-c
+results-cpu: svm-hparams probes diagnostics
+all: prep results-gpu results-cpu latency sample-grid report
+
+# Compare a reproduction ($(D), e.g. D=../data-repro) with the original results in REF, on the
+# encoders whose probes exist in both (a partial reproduction is compared on what it has)
+REF ?= $(abspath ../data)
+repro-compare:
+	$(PY) -m mo433.repro_compare --ref $(REF)
