@@ -110,3 +110,5 @@ TSNE_SEED = 0
 LATENCY_BATCH = 256
 LATENCY_WARMUP = 10
 LATENCY_ITERS = 100
+LATENCY_ROUNDS = 2                     # the whole measurement twice in a row
+LATENCY_MAX_ROUND_DIFF = 0.05          # rounds farther apart than this: measure again

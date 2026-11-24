@@ -21,12 +21,12 @@ export MO433_DATA := $(D)
 # prerequisite, such as a new tuning trial, would then not be built when its target exists.)
 .PRECIOUS: $(D)/runs/B-%.pth $(D)/runs/C-%.pth $(D)/feats/B-%_test.npy $(D)/feats/C-%_test.npy
 
-.PHONY: help env-info test notebook push-drive dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache throughput b-check tuning train-b train-b-c16 train-b-c32 train-c train-c-c16 train-c-c32 sensitivity-c check-runs svm-hparams probes diagnostics
+.PHONY: help env-info test notebook push-drive dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache throughput b-check tuning train-b train-b-c16 train-b-c32 train-c train-c-c16 train-c-c32 sensitivity-c check-runs svm-hparams probes diagnostics latency
 
 help:
 	@echo "Data dir: $(D)"
 	@echo "Python:   $(PY)"
-	@echo "Targets:  env-info test notebook push-drive | dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views | teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache | throughput b-check tuning | train-b train-b-c16 train-b-c32 train-c train-c-c16 train-c-c32 sensitivity-c check-runs | svm-hparams probes diagnostics"
+	@echo "Targets:  env-info test notebook push-drive | dataset stats sample-grid split label-subsets unlabeled-subsets views-preview views | teacher-info sanity-pixels sanity-teacher student-info row-a teacher-ref teacher-cache | throughput b-check tuning | train-b train-b-c16 train-b-c32 train-c train-c-c16 train-c-c32 sensitivity-c check-runs | svm-hparams probes diagnostics latency"
 
 # Always rerun: records the environment of the machine it runs on
 env-info:
@@ -271,3 +271,10 @@ $(D)/diag/%.json: $(D)/feats/%_test.npy mo433/diagnostics.py mo433/evaluate.py
 	$(PY) -m mo433.diagnostics $*
 
 diagnostics: $(ENCODERS:%=$(D)/diag/%.json)
+
+# E24: inference latency of the students and the teacher on the laptop's CPU (fp32, batch 256).
+# Run it with the laptop plugged in and idle (about 20 minutes).
+$(D)/latency.json: mo433/latency.py mo433/student.py mo433/teacher.py mo433/transforms.py
+	$(PY) -m mo433.latency
+
+latency: $(D)/latency.json
