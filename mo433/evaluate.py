@@ -1,4 +1,4 @@
-"""Evaluation functions, applied identically to every encoder (spec 3.6-3.7; DECISOES 20-24).
+"""Evaluation functions, applied identically to every encoder (spec 3.6-3.7; report Sec. 4).
 
 Preprocessing: each feature vector is L2-normalized, then standardized with a StandardScaler
 fitted on the features of the whole training split of that encoder (no labels needed), and
@@ -91,7 +91,7 @@ def rbf_svm(C: float, g: float, dim: int) -> SVC:
 def rbf_subsample(y, max_samples: int = config.RBF_MAX_SAMPLES,
                   seed: int = config.RBF_SUBSAMPLE_SEED) -> np.ndarray:
     """Positions (into ``y``, sorted) of the fixed stratified subsample on which the RBF SVM is
-    fitted (spec 3.6, DECISOES 23): all of them when there are at most ``max_samples``. It
+    fitted (spec 3.6, report Sec. 4): all of them when there are at most ``max_samples``. It
     depends only on the labels and the seed, so it is the same for every encoder."""
     positions = np.arange(len(y))
     if len(y) <= max_samples:

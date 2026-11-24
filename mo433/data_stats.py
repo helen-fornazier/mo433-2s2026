@@ -6,7 +6,7 @@ exploration notebook (notebooks/explore_eurosat.ipynb), which imports these func
 figures.
 
 Splits here are the raw TorchGeo lists (train / val / test); our training split is
-train + val (DECISOES 6).
+train + val (report Sec. 5.1).
 """
 
 import argparse

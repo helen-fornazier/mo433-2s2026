@@ -1,4 +1,4 @@
-"""Step E17: select (lr, h) for rows B and C from the tuning trials (spec 3.6; DECISOES 19).
+"""Step E17: select (lr, h) for rows B and C from the tuning trials (spec 3.6; report Sec. 5.2).
 
 Each row gets the same grid, TUNING_LRS x TUNING_HIDDEN, trained for TUNING_EPOCHS epochs with
 c=TUNING_WIDTH and seed TUNING_SEED (runs <row>-c16-d100-s0-tune-lr<lr>-h<h>). The criterion is

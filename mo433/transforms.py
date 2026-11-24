@@ -4,11 +4,11 @@ Images are kept as uint8 (N, 64, 64, 3) arrays everywhere (dataset and pre-gener
 and normalized as tensors at the last moment, on whatever device the batch is on.
 
 * Training transform: lightly's VICReg augmentation at 64 px with min_scale 0.25
-  (DECISOES 12-13), one view per call. ``generate_view`` applies it with a fixed seed per
+  (report Sec. 5.1), one view per call. ``generate_view`` applies it with a fixed seed per
   (image, view), so that the K pre-generated views (step E6) are reproducible.
 * Evaluation transform: deterministic, tensor conversion + ImageNet normalization; images are
-  already 64 px, so there is no resize or crop (DECISOES 11).
-* Teacher preprocessing: bicubic upsampling to 224 px + ImageNet normalization (DECISOES 10).
+  already 64 px, so there is no resize or crop (report Sec. 5.1).
+* Teacher preprocessing: bicubic upsampling to 224 px + ImageNet normalization (report Sec. 3.2).
 """
 
 import random
@@ -22,7 +22,7 @@ from PIL import Image
 from mo433 import config
 
 # Arguments of the training augmentation. Everything else stays at lightly's defaults.
-# sigmas: VICRegViewTransform defaults to (0.2, 2), VICRegTransform passes (0.1, 2) (DECISOES 31).
+# sigmas: VICRegViewTransform defaults to (0.2, 2), VICRegTransform passes (0.1, 2) (report Sec. 5.1).
 VIEW_KWARGS = dict(input_size=config.IMAGE_SIZE, min_scale=config.MIN_SCALE, normalize=None)
 
 

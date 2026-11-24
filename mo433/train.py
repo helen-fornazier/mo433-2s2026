@@ -1,4 +1,4 @@
-"""Step E15: train one student of row B or C (spec 3.4, 3.5, 3.9; DECISOES 14, 16-19, 30).
+"""Step E15: train one student of row B or C (spec 3.4, 3.5, 3.9; report Secs. 3.5, 3.6, 5.2).
 
     python -m mo433.train <name> [--lr LR] [--hidden H] [--epochs N] [--tag TAG]
 
@@ -21,7 +21,7 @@ steps followed by a cosine decay to zero, all per step. The seed fixes the stude
 initialization (identical to row A's encoder with the same seed) and the view sampler.
 cuDNN kernels are not bitwise deterministic, so two runs with the same seed can differ slightly.
 
-Writes, only when training ends (the checkpoint of the last epoch, DECISOES 17):
+Writes, only when training ends (the checkpoint of the last epoch, report Sec. 3.5):
   runs/<name>.pth        the student's state_dict (the head / projector is discarded)
   runs/<name>_log.json   loss, learning rate, seconds and skipped steps of each epoch
 and the usual .json metadata with the GPU, the wall time and the GPU-hours.
@@ -165,7 +165,7 @@ def main():
     bank = ViewBank(views, targets, args.device)
     gpu = torch.cuda.get_device_name() if bank.device.type == "cuda" else None
     if gpu is not None and "L4" not in gpu:
-        print(f"WARNING: running on {gpu}, not the L4 fixed for all timed runs (DECISOES 30)")
+        print(f"WARNING: running on {gpu}, not the L4 fixed for all timed runs (report Sec. 5.3)")
 
     start = time.perf_counter()
     student, history = train(run["row"], run["c"], run["seed"], positions, bank, lr=run["lr"],

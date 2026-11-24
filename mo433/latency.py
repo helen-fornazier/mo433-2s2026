@@ -1,4 +1,4 @@
-"""Step E24: inference latency of each encoder type on one fixed device (spec 3.8; DECISOES 26).
+"""Step E24: inference latency of each encoder type on one fixed device (spec 3.8; report Sec. 4).
 
     python -m mo433.latency            (on the laptop, with no other load)
 

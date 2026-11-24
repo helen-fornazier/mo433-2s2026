@@ -1,4 +1,4 @@
-"""Training components shared by rows B and C (spec 3.4, 3.5, 3.9; DECISOES 14, 18).
+"""Training components shared by rows B and C (spec 3.4, 3.5, 3.9; report Secs. 5.1, 5.3).
 
 The throughput measurement (step E14) and the training loop (step E15) use exactly these pieces,
 so what is timed is what is trained.

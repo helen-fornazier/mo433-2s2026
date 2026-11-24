@@ -1,4 +1,4 @@
-"""Step E23: unsupervised diagnostics of one encoder on its test features (spec 3.7; DECISOES 24).
+"""Step E23: unsupervised diagnostics of one encoder on its test features (spec 3.7; report Sec. 4).
 
     python -m mo433.diagnostics <encoder>        e.g. A-c16-s0, B-c16-d100-s0, D
 

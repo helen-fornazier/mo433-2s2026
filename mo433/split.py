@@ -2,7 +2,7 @@
 
 {"train": indices, "test": indices} into eurosat/images.npy (sorted int64 arrays).
 train = TorchGeo train + val lists, test = TorchGeo test list (Neumann et al., 2019;
-DECISOES 6). No randomness: the lists fix the split. The test indices are never used for
+report Sec. 5.1). No randomness: the lists fix the split. The test indices are never used for
 training, distillation, probe fitting or hyperparameter selection.
 """
 

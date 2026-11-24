@@ -4,7 +4,7 @@
 
 For every run of train.main_runs (rows B and C, both widths, both unlabeled fractions, every
 seed) it checks that the checkpoint, its log and its sanity check exist, that it was trained on
-the L4 (DECISOES 30) with the full number of steps, and that it passes the collapse criterion
+the L4 (report Sec. 5.3) with the full number of steps, and that it passes the collapse criterion
 fixed before the main runs (step E18), against row A with the same width (mean over its seeds):
   collapse        embedding std below twice A's, or k-means NMI not above A's
   failed training k-NN at 100% labels less than KNN_MARGIN above A's

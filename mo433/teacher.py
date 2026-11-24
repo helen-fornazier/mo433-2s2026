@@ -1,4 +1,4 @@
-"""Step E7: the frozen teacher (row D), DINO ViT-S/16 from timm (spec 3.3; DECISOES 8-10).
+"""Step E7: the frozen teacher (row D), DINO ViT-S/16 from timm (spec 3.3; report Sec. 3.2).
 
 ``load_teacher`` returns a ``Teacher`` module that takes uint8 views at 64 px, (N, 3, 64, 64),
 and returns the 384-d pooled feature: the [CLS] token after the final LayerNorm
@@ -78,7 +78,7 @@ def teacher_info(teacher: Teacher) -> dict:
         "feature_dim": vit.num_features,
         "global_pool": vit.global_pool,
         "weights_sha256": weights_sha256(vit),
-        # timm's own preprocessing for this checkpoint, to compare with ours (DECISOES 10-11)
+        # timm's own preprocessing for this checkpoint, to compare with ours (report Secs. 3.2, 5.1)
         "pretrained_cfg": {k: cfg.get(k) for k in ("input_size", "interpolation", "mean", "std",
                                                     "crop_pct", "license")},
     }

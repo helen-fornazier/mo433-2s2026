@@ -19,7 +19,7 @@ def test_size_family(c, params, dim):
 
 
 def test_same_initialization_in_rows_a_b_c():
-    """DECISOES 32: A-s, B-s and C-s start from identical backbone weights."""
+    """A-s, B-s and C-s start from identical backbone weights (report Sec. 3.4)."""
     for c in config.WIDTHS:
         a = create_student(c, seed=1)
         b = create_student(c, seed=1); create_vicreg_head(c, 1024)

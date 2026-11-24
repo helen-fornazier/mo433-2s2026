@@ -1,4 +1,4 @@
-"""Step E22: the probes of one encoder on its cached features (spec 3.6; DECISOES 20-24).
+"""Step E22: the probes of one encoder on its cached features (spec 3.6; report Sec. 4).
 
     python -m mo433.probe <encoder>        e.g. A-c16-s0, B-c16-d100-s0, C-c32-d50-s1, D
 

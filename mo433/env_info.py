@@ -1,7 +1,7 @@
 """Record the software and hardware of this machine in $MO433_DATA/env_<host>.json.
 
 Run once per environment (laptop, Colab). The versions go to the report's appendix and the
-GPU name confirms that every timed run used the same GPU model (DECISOES 30).
+GPU name confirms that every timed run used the same GPU model (report Sec. 5.3).
 """
 
 import argparse

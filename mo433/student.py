@@ -1,5 +1,5 @@
 """Step E11: the student family convnet(c) and the heads used during training (spec 2.1;
-DECISOES 1-7, 32).
+report Secs. 3.3, 3.4, 3.5, 3.6).
 
 Architecture for width c, input 3 x 64 x 64 (report, tab:student):
   stem     conv 3x3 stride 1, BN, ReLU (no max-pool)           64 x 64, c
@@ -16,7 +16,7 @@ row A artificially weak). The only scaling rule between sizes is the width c.
 ``Student`` takes uint8 images (N, 3, 64, 64) and normalizes them inside, like the teacher
 wrapper, so the same ``extract`` serves every encoder.
 
-Same initialization in rows A, B and C (DECISOES 32): ``create_student(c, seed)`` seeds torch and
+Same initialization in rows A, B and C (report Sec. 3.4): ``create_student(c, seed)`` seeds torch and
 builds only the backbone, before anything else draws random numbers; the VICReg head (B) and
 the distillation projector (C) are built afterwards, by ``create_vicreg_head`` /
 ``create_projector``. So A-s, B-s and C-s start from identical backbone weights.
@@ -104,14 +104,14 @@ def create_student(c: int, seed: int) -> Student:
 
 
 def create_vicreg_head(c: int, hidden: int) -> nn.Module:
-    """Row B: lightly's VICReg projection head, 8c -> h -> h -> h (DECISOES 6). Built after the
+    """Row B: lightly's VICReg projection head, 8c -> h -> h -> h (report Sec. 3.5). Built after the
     student, so it does not change the student's initialization."""
     from lightly.models.modules.heads import VICRegProjectionHead
     return VICRegProjectionHead(input_dim=8 * c, hidden_dim=hidden, output_dim=hidden, num_layers=3)
 
 
 def create_projector(c: int, hidden: int) -> nn.Module:
-    """Row C: Linear(8c, h) -> BN -> GELU -> Linear(h, 384) (spec 3.5; DECISOES 7)."""
+    """Row C: Linear(8c, h) -> BN -> GELU -> Linear(h, 384) (spec 3.5; report Sec. 3.6)."""
     return nn.Sequential(nn.Linear(8 * c, hidden), nn.BatchNorm1d(hidden), nn.GELU(),
                          nn.Linear(hidden, config.TEACHER_DIM))
 

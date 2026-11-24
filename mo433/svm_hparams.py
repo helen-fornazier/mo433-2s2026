@@ -1,4 +1,4 @@
-"""Step E21: choose the SVM hyperparameters once, then freeze them (spec 3.6; DECISOES 20b, 23).
+"""Step E21: choose the SVM hyperparameters once, then freeze them (spec 3.6; report Sec. 4).
 
 The choice is made on a single encoder, SVM_HPARAM_ENCODER (row B, c16, 100% of the unlabeled
 images, seed 0), with 100% of the labels, by stratified SVM_CV_FOLDS-fold cross-validation on

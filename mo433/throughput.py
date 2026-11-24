@@ -1,4 +1,4 @@
-"""Step E14: throughput of every training stage on the fixed GPU (spec 3.9; DECISOES 5, 18, 30).
+"""Step E14: throughput of every training stage on the fixed GPU (spec 3.9; report Sec. 5.3).
 
 Writes $MO433_DATA/throughput.json. For each candidate batch size, in images per second:
 

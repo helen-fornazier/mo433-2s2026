@@ -1,8 +1,7 @@
 """Fixed settings of the study, in one place.
 
-Every value here is a decision recorded in relatorio/DECISOES.md (the number in brackets) or
-a requirement of the project specification (mo433_project.pdf, section in brackets).
-Values that are only fixed after the throughput measurement (week 2) are None until then.
+Every value here is either a requirement of the project specification ("spec", with its section
+number) or a choice justified in the report ("report Sec."), as noted next to it.
 """
 
 # ---------------------------------------------------------------------------
@@ -19,7 +18,7 @@ EXPECTED_CLASS_COUNTS = {
     "River": 2500, "SeaLake": 3000,
 }
 
-# Fixed split of Neumann et al. (2019), distributed with TorchGeo (DECISOES 6).
+# Fixed split of Neumann et al. (2019), distributed with TorchGeo (report Sec. 5.1).
 # train + val lists are merged into our training split; the test list is the test split.
 SPLIT_URL = "https://hf.co/datasets/torchgeo/eurosat/resolve/main/eurosat-{}.txt"
 SPLIT_LISTS = {"train": ("train", "val"), "test": ("test",)}
@@ -29,12 +28,12 @@ N_TRAIN, N_TEST = 21_600, 5_400
 LABEL_FRACTIONS = (0.01, 0.10, 0.50, 1.00)
 LABEL_DRAWS = (0, 1, 2)
 
-# Unlabeled subsets for training B and C; 50% is the ablation level (spec 5, DECISOES 15)
+# Unlabeled subsets for training B and C; 50% is the ablation level (spec 5, report Sec. 6.5)
 UNLAB_FRACTIONS = (100, 50)
 UNLAB_SEED = 0
 
 # ---------------------------------------------------------------------------
-# Augmentation and fixed views (spec 3.1, 3.9; DECISOES 11-14, 31)
+# Augmentation and fixed views (spec 3.1, 3.9; report Sec. 5.1)
 # ---------------------------------------------------------------------------
 K_VIEWS = 10
 VIEW_SEED = 0
@@ -45,7 +44,7 @@ IMAGENET_MEAN = (0.485, 0.456, 0.406)
 IMAGENET_STD = (0.229, 0.224, 0.225)
 
 # ---------------------------------------------------------------------------
-# Teacher, row D (spec 3.3; DECISOES 8-10)
+# Teacher, row D (spec 3.3; report Sec. 3.2)
 # ---------------------------------------------------------------------------
 TEACHER_NAME = "vit_small_patch16_224.dino"
 TEACHER_RES = 224
@@ -59,25 +58,25 @@ TEACHER_CACHE_MIN_COS = 0.999                      # fp16 cache vs fp32
 TEACHER_HOSTS_MIN_COS = 0.9999                     # fp32 on Colab's GPU vs fp32 on the laptop
 
 # ---------------------------------------------------------------------------
-# Student family (spec 2.1; DECISOES 1-5)
+# Student family (spec 2.1; report Sec. 3.3)
 # ---------------------------------------------------------------------------
 WIDTHS = (16, 32)                      # c; stages [c, 2c, 4c, 8c], output dim 8c
 SEEDS = {16: (0, 1, 2), 32: (0, 1)}    # spec 2.1: >=3 seeds small, >=2 seeds large
 
 # ---------------------------------------------------------------------------
-# Training of B and C (spec 3.4, 3.5; DECISOES 18-19)
+# Training of B and C (spec 3.4, 3.5; report Secs. 5.2, 5.3)
 # ---------------------------------------------------------------------------
 # Fixed from the throughput measurement (E14, throughput.json): 200 epochs of every main run
-# cost ~4.7 GPU-h of steps on the L4, so the budget is not binding (DECISOES 18).
+# cost ~4.7 GPU-h of steps on the L4, so the budget is not binding (report Sec. 5.3).
 EPOCHS = 200
 BATCH_SIZE = 512                       # same throughput as 256, half the steps
 WARMUP_FRACTION = 0.05                 # linear warm-up over 5% of the steps (10 of 200 epochs)
 WEIGHT_DECAY = 0.05
 # Extended while the best lr of either row sits at the top of the grid, for both rows alike:
-# 1e-2 after both picked 3e-3, 3e-2 after both picked 1e-2, 1e-1 after C picked 3e-2 (DECISOES 19)
+# 1e-2 after both picked 3e-3, 3e-2 after both picked 1e-2, 1e-1 after C picked 3e-2 (report Sec. 5.2)
 TUNING_LRS = (3e-4, 1e-3, 3e-3, 1e-2, 3e-2, 1e-1)
 TUNING_HIDDEN = (1024, 2048)
-TUNING_EPOCHS = 50                     # a quarter of the final length (DECISOES 19)
+TUNING_EPOCHS = 50                     # a quarter of the final length (report Sec. 5.2)
 TUNING_WIDTH, TUNING_SEED = 16, 0
 TUNING_CV_FOLDS, TUNING_CV_SEED = 5, 0  # selection: k-NN accuracy by stratified CV on train
 # (lr, h) selected for each row by the tuning (step E17, data/tuning.json): both inside the grid
@@ -90,7 +89,7 @@ THROUGHPUT_WARMUP, THROUGHPUT_ITERS = 5, 30
 THROUGHPUT_EPOCH_OPTIONS = (50, 100, 200, 300)   # budgets tabulated from the measurement
 
 # ---------------------------------------------------------------------------
-# Evaluation (spec 3.6-3.8; DECISOES 20-28)
+# Evaluation (spec 3.6-3.8; report Sec. 4)
 # ---------------------------------------------------------------------------
 KNN_MAX_K = 20                         # k = min(20, n of the smallest class in the subset)
 SVM_CV_FOLDS = 5

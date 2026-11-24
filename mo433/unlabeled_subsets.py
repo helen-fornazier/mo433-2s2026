@@ -3,7 +3,7 @@ $MO433_DATA/unlab_idx_100.pkl and unlab_idx_50.pkl.
 
 Indices are positions within the training split (split_idx.pkl["train"]), which is also the
 order of the pre-generated views (step E6). 100% is the whole training split; 50% is the
-ablation level (spec 5), a uniform draw without replacement with seed 0 (DECISOES 15).
+ablation level (spec 5), a uniform draw without replacement with seed 0 (report Sec. 6.5).
 The draw never sees the labels: ``draw_unlabeled_subset`` only receives the number of images.
 The class distribution of the 50% subset is computed afterwards, for information only.
 """

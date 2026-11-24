@@ -2,7 +2,7 @@
 # than its inputs.
 #   make -n <target>   show what would run, without running it
 #   make -B <target>   force a rebuild
-# Phases and steps: ../PLANO-IMPLEMENTACAO.md
+# Step IDs (E1-E27) and targets: README.md
 
 # Data root: $MO433_DATA if set (Colab: /content/drive/MyDrive/mo433-2s2026), else ../data
 D  ?= $(or $(MO433_DATA),$(abspath ../data))
@@ -231,7 +231,7 @@ train-c: train-c-c16 train-c-c32
 
 # Sensitivity check of row C (appendix only, never used to select): the main runs of C show
 # transient loss spikes at the selected lr (3e-2), so the c16/d100 runs are repeated, every seed,
-# with the second-best lr of the tuning (1e-2), everything else unchanged (DECISOES 14)
+# with the second-best lr of the tuning (1e-2), everything else unchanged (report Sec. 8)
 SENS_C := $(foreach s,0 1 2,C-c16-d100-s$(s)-lr1e-2)
 $(SENS_C:%=$(D)/runs/%.pth): $(D)/runs/C-c16-d100-s%-lr1e-2.pth: $(VIEWS) $(UNLAB_50) \
 		$(TEACHER_FEATS) $(TRAIN_CODE)
@@ -273,7 +273,7 @@ $(D)/diag/%.json: $(D)/feats/%_test.npy mo433/diagnostics.py mo433/evaluate.py
 diagnostics: $(ENCODERS:%=$(D)/diag/%.json)
 
 # E24: inference latency of the students and the teacher on the laptop's CPU (fp32, batch 256).
-# Run it with the laptop plugged in and idle (about 20 minutes).
+# Run it with the laptop plugged in and idle (about 40 minutes).
 $(D)/latency.json: mo433/latency.py mo433/student.py mo433/teacher.py mo433/transforms.py
 	$(PY) -m mo433.latency
 
@@ -282,7 +282,7 @@ latency: $(D)/latency.json
 # ---------------------------------------------------------------------------
 # Phase 6: report
 # ---------------------------------------------------------------------------
-# E25: every results table (relatorio/tables) and figure (relatorio/figures) from data/;
+# E25: every results table ($(REPORT)/tables) and figure ($(REPORT)/figures) from $(D);
 # tables/main.tex stands for all of them
 REPORT_INPUTS := $(ENCODERS:%=$(D)/probes/%.json) $(ENCODERS:%=$(D)/diag/%.json) \
 	$(ENCODERS:%=$(D)/sanity/%.json) $(D)/sanity/pixels.json $(D)/sanity/D-random.json \

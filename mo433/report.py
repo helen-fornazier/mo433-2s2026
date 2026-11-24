@@ -274,7 +274,7 @@ def table_cost(agg, logs: dict, cache_gpu_hours: float) -> str:
 
     def per_point(cost):
         d = cost["C"] - cost["B"]
-        return "none (\\rowC\\ cheaper)" if d <= 0 else f"{d / extra:.2f}"
+        return "none (\\rowC\\ cheaper)" if d <= 0 else thousands(d / extra)
     rows = [(f"Teacher pretraining, {config.TEACHER_PRETRAIN_EPOCHS} epochs (extrapolated)", "--",
              thousands(config.TEACHER_PRETRAIN_GPU_HOURS)),
             ("\\quad published 300-epoch run (lower bound)", "--",
