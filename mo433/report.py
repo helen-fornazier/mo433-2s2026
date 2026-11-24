@@ -275,8 +275,10 @@ def table_cost(agg, logs: dict, cache_gpu_hours: float) -> str:
     def per_point(cost):
         d = cost["C"] - cost["B"]
         return "none (\\rowC\\ cheaper)" if d <= 0 else f"{d / extra:.2f}"
-    rows = [("Teacher pretraining (published, \\citet{caron2021dino})", "--",
+    rows = [(f"Teacher pretraining, {config.TEACHER_PRETRAIN_EPOCHS} epochs (extrapolated)", "--",
              thousands(config.TEACHER_PRETRAIN_GPU_HOURS)),
+            ("\\quad published 300-epoch run (lower bound)", "--",
+             thousands(config.TEACHER_PRETRAIN_GPU_HOURS_300)),
             ("Teacher feature cache (once, shared by all runs)", "--", f"{cache_gpu_hours:.2f}"),
             (f"\\quad share per run (cache / {n_c_runs} \\rowC\\ runs)", "--", f"{share:.3f}"),
             ("Student training, per run (mean over seeds)", f"{train['B']:.2f}", f"{train['C']:.2f}"),

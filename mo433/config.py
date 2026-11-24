@@ -110,9 +110,12 @@ TSNE_SEED = 0
 # Report (step E25)
 COST_WIDTH, COST_FRACTION = 16, 0.01   # tab:cost: linear SVM, small student, 1% labels
 CONFUSION_FRACTION = 0.01              # fig:confusion: linear SVM, draw 0
-# DINO ViT-S/16 pretraining, Caron et al. 2021 (Sec. 5.2 / Tab. 8): "two 8-GPU servers for
-# 3 days" (V100), for the 300-epoch run; a lower bound for the released checkpoint
-TEACHER_PRETRAIN_GPU_HOURS = 2 * 8 * 72
+# DINO ViT-S/16 pretraining [39]: the paper gives 72.6 h on 16 GPUs for 300 epochs (Tab. 8,
+# multi-crop 2x224 + 10x96; GPU model not stated); the public checkpoint has 800 epochs, and
+# the linear extrapolation to 800 epochs is ours (report, sec:teacher)
+TEACHER_PRETRAIN_GPU_HOURS_300 = 72.6 * 16
+TEACHER_PRETRAIN_EPOCHS = 800
+TEACHER_PRETRAIN_GPU_HOURS = TEACHER_PRETRAIN_GPU_HOURS_300 * TEACHER_PRETRAIN_EPOCHS / 300
 LATENCY_BATCH = 256
 LATENCY_WARMUP = 10
 LATENCY_ITERS = 100
